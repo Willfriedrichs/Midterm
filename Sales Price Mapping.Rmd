@@ -88,4 +88,11 @@ ggplot()+
 
 ```
 
+```{r school data}
+Shchool_Facilities <- 
+  st_read("https://opendata.arcgis.com/datasets/c08c48b2aadd4324ad39f8dca95e1755_0.geojson")%>%
+  st_transform('ESRI:102254')%>%
+  filter(TYPE == "Educational Facility")
+```
+
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
