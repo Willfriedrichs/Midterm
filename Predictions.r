@@ -6,7 +6,6 @@ library(dplyr)
 library(ggcorrplot)
 library(caret)
 
-
 #######################################################
 # Getting data from the ACS tracts
 #######################################################
@@ -21,7 +20,7 @@ varlist_2019 <- load_variables(2019, "acs5", cache = TRUE)
 #Vacant occupancy
 #Owner-occupied housing units: bachelor's degree or higher
 #Aggregate travel time to work
-#Total number of bachelor’s degrees in science and engineering related fields
+#Total number of bachelor's degrees in science and engineering related fields
 
 tracts19 <- get_acs(geography = "tract",                         
                     variables = c("B01001_001","B23025_004","B06011_001",
@@ -55,6 +54,21 @@ studentData <- st_read("studentData.geojson", crs = 'ESRI:102254')
 
 # Attach ACS data
 studentData <- st_join(studentData, tracts19, join = st_within)
+
+# Load Green-space data
+# GreenSpacePolygon <- st_union(st_read("County_Open_Space.geojson")) %>%
+#                      st_transform('ESRI:102254')
+
+# attach distance to green space data
+# studentData %>% mutate(green_dis = st_distance(studentData, GreenSpacePolygon))
+
+# Load Green-space data
+landmarksPolygon <- st_union(st_read("Natural_Landmarks.geojson")) %>%
+  st_transform('ESRI:102254')
+
+# attach distance to green space data
+studentData <- mutate(studentData, landmark_dist = st_distance(studentData, landmarksPolygon))
+
 
 # This selects all numeric variables as preparation for the
 # correlation analysis that follows.
@@ -113,7 +127,8 @@ regression.10foldcv <-
                         tot_pop,
                         tt_work,
                         white_pop,
-                        vac_occ), 
+                        vac_occ,
+                        landmark_dist), 
         method = "lm", trControl = fitControl, na.action = na.pass)
 
 # The resulting Mean Absolute Error (MAE) of running this line tells us how
