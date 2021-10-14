@@ -4,6 +4,7 @@ library(sf)
 library(kableExtra)
 library(dplyr)
 library(ggcorrplot)
+library(caret)
 
 #######################################################
 # Loading data, finding correlation within studentData
@@ -47,5 +48,24 @@ testSignificance <- lm(price ~ ., data = numericVars %>%
 # This gives us our r-squared value, which measures fit to the training data.
 summary(testSignificance)
 
-# Later, we'll need to try cross-validation to see how well the model predicts 
-# for data it has never seen before. 
+# We'll need to try cross-validation to see how well the model predicts for
+# data it has never seen before, which will be more useful than r squared.
+
+# This sets up k-fold cross-validation.
+k = 10
+fitControl <- trainControl(method = "cv", number = k)
+set.seed(324)
+
+# variables in the "select(...)" function are considered in the analysis here.
+regression.10foldcv <- 
+  train(price ~ ., data = numericVars %>% 
+                        select(price, 
+                        qualityCode,
+                        TotalFinishedSF,
+                        mainfloorSF), 
+        method = "lm", trControl = fitControl, na.action = na.pass)
+
+# The resulting Mean Absolute Error (MAE) of running this line tells us how
+# successful our model is at predicting unknown data. 
+regression.10foldcv
+
