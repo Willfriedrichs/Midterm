@@ -66,6 +66,20 @@ studentData <- st_join(studentData, tracts19, join = st_within)
 landmarksPolygon <- st_union(st_read("Natural_Landmarks.geojson")) %>%
   st_transform('ESRI:102254')
 
+
+
+#  Loading Playground Locations
+Playground <- 
+  st_read("Playground_Sites_Points.GEOJSON", crs = 'ESRI:102254')
+st_transform('ESRI:102254')
+
+
+#  Loading School Locations
+Schools <- 
+  st_read("CDPHE_CDOE_School_Locations_and_District_Office_Locations.GEOJSON", crs = 'ESRI:102254')
+st_transform('ESRI:102254')
+
+
 # attach distance to green space data
 studentData <- mutate(studentData, landmark_dist = st_distance(studentData, landmarksPolygon))
 
