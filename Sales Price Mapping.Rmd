@@ -1,0 +1,91 @@
+---
+title: "Sales Price Mapping"
+author: "Yihong Hu"
+date: "10/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+#Loading Library
+
+```{r Load libaraies and functions}
+
+library(tidyverse)
+library(sf)
+library(spdep)
+library(caret)
+library(ckanr)
+library(FNN)
+library(grid)
+library(gridExtra)
+library(ggcorrplot)
+library(kableExtra)
+library(jtools)     
+library(ggstance)
+library(fbi)
+
+q5 <- function(variable) {as.factor(ntile(variable, 5))}
+
+qbr <- function(df, variable, rnd) {
+  if (missing(rnd)) {
+    as.character(quantile(round(df[[variable]],0),
+                          c(.01,.2,.4,.6,.8), na.rm=T))
+  } else if (rnd == FALSE | rnd == F) {
+    as.character(formatC(quantile(df[[variable]]), digits = 3),
+                 c(.01,.2,.4,.6,.8), na.rm=T)
+  }
+}
+
+palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
+```
+
+```{r Input Boulder Data, figure.width = 10, figure.height= 10, message=FALSE, warning=TRUE}
+
+root.dir = "E:/UPenn/Fall 2021/CPLN 592 MUSA 508/LAB4/musa508_wk4_2021"
+
+boulder <-
+  st_read(file.path(root.dir,"studentData.geojson")) %>% 
+  st_set_crs('ESRI:102254') 
+
+##Remove NA values from column "price"
+boulder <-
+  boulder[!is.na(boulder$price),]
+  
+
+boulder.nogeo <- st_drop_geometry(boulder)
+
+boulder.sf <-
+  st_read("https://opendata.arcgis.com/datasets/964b8f3b3dbe401bb28d49ac93d29dc4_0.geojson")%>%
+  select(geometry) %>%
+  st_transform('ESRI:102254')
+
+boulder.openspace <-
+  st_read("https://opendata.arcgis.com/datasets/61728921abcb481fa98b9b07cfd7c95d_0.geojson") %>%
+  st_transform('ESRI:102254')
+
+boulder.municipal <-
+  st_read("https://opendata.arcgis.com/datasets/9597d3916aba47e887ca563d5ac15938_0.geojson")%>%
+  st_transform('ESRI:102254')
+
+
+ggplot()+
+  geom_sf(data = boulder.sf, fill = "grey70") +
+    geom_sf(data = boulder.municipal, aes(fill = ZONEDESC, alpha=0.5),colour = "white") +
+  geom_sf(data = boulder, aes(colour = q5(price)),size=.85)+
+  scale_colour_manual(values = palette5,
+                   labels=qbr(boulder,"price"),
+                   name = "Sale Price")
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
