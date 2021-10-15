@@ -125,7 +125,7 @@ ggplot()+
   geom_sf(data = studentData, aes(colour = q5(price)),size=.85)+
   scale_colour_manual(values = palette5,
                       labels=qbr(studentData,"price"),
-                      name = "Sale Price") +
+                      name = "Sale Price") 
   geom_sf(data = TrailHead, fill = "black")
 
 # Median Housing Price in Each Municipality
@@ -151,6 +151,30 @@ kable(Municipality.Summary, digits = 2) %>%
   kable_styling() %>%
   footnote(general_title = "\n",
            general = "Table 1")
+
+
+
+# Creating dummy variables for municipalities
+#studentData <- st_join(studentData, BoulderMuni_Boundary, join = st_within)
+studentData <- mutate(studentData, Loui_dummy = case_when(Municipality=="Louisville"~ 1, Municipality!="Louisville"~ 0))     
+studentData <- mutate(studentData, Ward_dummy = case_when(Municipality=="Ward"~ 1, Municipality!="Ward"~ 0))
+studentData <- mutate(studentData, Jame_dummy = case_when(Municipality=="Jamestown"~ 1, Municipality!="Jamestown"~ 0))
+studentData <- mutate(studentData, Nede_dummy = case_when(Municipality=="Nederland"~ 1, Municipality!="Nederland"~ 0))
+studentData <- mutate(studentData, Boul_dummy = case_when(Municipality=="Boulder"~ 1, Municipality!="Boulder"~ 0))
+studentData <- mutate(studentData, Erie_dummy = case_when(Municipality=="Erie"~ 1, Municipality!="Erie"~ 0))
+studentData <- mutate(studentData, Lafa_dummy = case_when(Municipality=="Lafayette"~ 1, Municipality!="Lafayette"~ 0))
+studentData <- mutate(studentData, Long_dummy = case_when(Municipality=="Longmont"~ 1, Municipality!="Longmont"~ 0))
+studentData <- mutate(studentData, Lyon_dummy = case_when(Municipality=="Lyons"~ 1, Municipality!="Lyons"~ 0))
+studentData <- mutate(studentData, Supe_dummy = case_when(Municipality=="Superior"~ 1, Municipality!="Superior"~ 0))
+####################################################################
+
+                                      
+
+
+
+
+
+
 
 # Load Park data
 GreenSpacePolygon <- st_read("County_Open_Space.geojson") %>%
@@ -278,6 +302,46 @@ k = 100
 fitControl <- trainControl(method = "cv", number = k)
 set.seed(825)
 
+# Multivariate regression 
+reg1 <- lm(price ~ ., data = cleanData %>% 
+dplyr::select(price, 
+              qualityCode,
+              TotalFinishedSF,
+              Ac,
+              Age,
+              Heating,
+              med_inc,
+              nbrRoomsNobath,
+              nbrThreeQtrBaths,
+              nbrFullBaths,
+              nbrHalfBaths,
+              tt_work,
+              vac_occ,
+              landmark_dist,
+              tot_pop,
+              pop_den,
+              white_pop,
+              pvty_pop,
+              privat_dist,
+              head_nn3,
+              park_nn3,
+              privatesch_nn1,
+              school_nn1,
+              Loui_dummy,
+              Ward_dummy,
+              Jame_dummy,
+              Nede_dummy,
+              Boul_dummy,
+              Erie_dummy,
+              Lafa_dummy,
+              Long_dummy,
+              Lyon_dummy,
+              Supe_dummy))
+
+summary(reg1)
+###############################################################################
+
+
 # variables in the "select(...)" function are considered in the analysis here.
 regression.100foldcv <- 
   train(price ~ ., data = cleanData %>% 
@@ -303,7 +367,17 @@ regression.100foldcv <-
                         head_nn3,
                         park_nn3,
                         privatesch_nn1,
-                        school_nn1
+                        school_nn1,
+                        Loui_dummy,
+                        Ward_dummy,
+                        Jame_dummy,
+                        Nede_dummy,
+                        Boul_dummy,
+                        Erie_dummy,
+                        Lafa_dummy,
+                        Long_dummy,
+                        Lyon_dummy,
+                        Supe_dummy,
                          ), 
         method = "lm", trControl = fitControl, na.action = na.pass)
 warnings()
