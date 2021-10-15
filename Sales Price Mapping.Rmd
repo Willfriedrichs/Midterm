@@ -33,6 +33,10 @@ library(jtools)
 library(ggstance)
 library(fbi)
 
+root.dir = "https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/"
+
+source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/functions.r")
+
 q5 <- function(variable) {as.factor(ntile(variable, 5))}
 
 qbr <- function(df, variable, rnd) {
@@ -86,13 +90,39 @@ ggplot()+
                    name = "Sale Price")
 
 
+
 ```
 
-```{r school data}
-Shchool_Facilities <- 
+```{r school data,warning=FALSE}
+School_Facilities <- 
   st_read("https://opendata.arcgis.com/datasets/c08c48b2aadd4324ad39f8dca95e1755_0.geojson")%>%
   st_transform('ESRI:102254')%>%
-  filter(TYPE == "Educational Facility")
+  filter(TYPE == "Educational Facility")%>%
+  st_centroid()
+
+ggplot()+
+  geom_sf(data = boulder.sf, fill = "grey70") +
+  geom_sf(data = School_Facilities,colour = "green")
+
+st_c <- st_coordinates
+
+boulder <-
+  boulder %>% 
+    mutate(
+      school_distance = nn_function(st_c(boulder), st_c(School_Facilities), 1))
+
+st_drop_geometry(boulder) %>% 
+  mutate(Age = 2021 - builtYear) %>%
+  dplyr::select(price, mainfloorSF, Age, TotalFinishedSF,school_distance) %>%
+  filter(price <= 1000000, Age < 500) %>%
+  gather(Variable, Value, -price) %>% 
+   ggplot(aes(Value, price)) +
+     geom_point(size = .5) + geom_smooth(method = "lm", se=F, colour = "#FA7800") +
+     facet_wrap(~Variable, ncol = 3, scales = "free") +
+     labs(title = "Price as a function of continuous variables") +
+     plotTheme()
+
+School_PlayGroud <- st_read("Playground_Sites_Points.geojson")
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
