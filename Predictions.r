@@ -14,6 +14,7 @@ library(jtools)
 library(ggstance)
 library(rpart)
 library(ggplot2)
+library(stargazer)
 
 #############################
 #Loading functions and color palettes
@@ -116,8 +117,7 @@ ggplot()+
   geom_sf(data = studentData, aes(colour = q5(price)),size=.85)+
   scale_colour_manual(values = palette5,
                       labels=qbr(studentData,"price"),
-                      name = "Sale Price") +
-  geom_sf(data = TrailHead, fill = "black")
+                      name = "Sale Price") 
 
 # Median Housing Price in Each Municipality
 House_in_muni_boundary <- st_intersection(studentData, BoulderMuni_Boundary) %>%
@@ -317,10 +317,12 @@ studentData <-
 
 # This selects all numeric variables as preparation for the
 # correlation analysis that follows.
+#(also delete the outliar)
 
 cleanData <- 
   select_if(st_drop_geometry(studentData), is.numeric) %>%
-  select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount, MUSA_ID))
+  select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount, MUSA_ID))%>%
+  slice(-2638)
 
 cleanData$Ac[(cleanData$Ac)== 0] <- NA
 cleanData$Heating[(cleanData$Heating) == 0] <- NA
@@ -329,37 +331,82 @@ cleanData$Heating[(cleanData$Heating) == 0] <- NA
 
 # The test data only includes rows comprising the test set.
 # Remove Outliars
-train.Data <- filter(cleanData, toPredict == 0) %>%
-  filter(price < 30000000)%>%
-  na.omit()
-  
-  
-  
+
 test.Data <- filter(cleanData, toPredict == 1)
 
+#Split the ‘toPredict’ == 0 into a separate training and test set 
+#using a 75/25 split
+
+train.Data <- filter(cleanData, toPredict == 0) %>%
+  na.omit()
+
+inTrain <- createDataPartition(
+  y = paste(train.Data$Heating, train.Data$Ac), 
+  p = .75, list = FALSE)
+train.Data.1 <- train.Data[inTrain,] 
+train.Data.2 <- train.Data[-inTrain,]
 
 # This function here attempts to fit a linear model to
 # the relationship between "testData" variables.
-ggplot(data = studentData, aes(Heating, price)) +
+ggplot(data = train.Data, aes(Heating, price)) +
        geom_point(size = .5) + 
        geom_smooth(method = "lm")
 
+#Dataframe with variables of interest
+train.Data.clean <-
+  train.Data %>%
+  select(price, 
+         section_num,
+         qualityCode,
+         TotalFinishedSF,
+         Age,
+         Ac,
+         Heating,
+         med_inc,
+         nbrRoomsNobath,
+         vac_occ,
+         tot_pop,
+         pop_den,
+         pvty_pop,
+         head_nn5,
+         park_nn1,
+         Boul_dummy,
+         Loui_dummy,
+         pgcount500m,
+         TotalBath,
+         flood_dist,
+         landmark_dist)
+
+
 # Correlation analysis: pearson for each relationship
 ggcorrplot(
-  round(cor(testData), 1), 
-  p.mat = cor_pmat(testData),show.diag = TRUE,
+  round(cor(train.Data.clean), 1), 
+  p.mat = cor_pmat(train.Data.clean),show.diag = TRUE,
   colors = c("#25CB10", "white", "#FA7800"),
   type="lower",
   insig = "blank") +  
   labs(title = "Correlation across numeric variables") 
 
+#Scatter plots between price and variables
+cleanData %>%
+  select(price,"Playground Count in 500m" = pgcount500m, 
+         "Total Squrefootage" = TotalFinishedSF,"Distance to Landmark (m)" = landmark_dist,
+         privatesch_nn1)%>%
+gather(Variable, Value, -price) %>% 
+  ggplot(aes(Value, price)) +
+  geom_point(size = .5) + geom_smooth(method = "lm", se=F, colour = "#FA7800") +
+  facet_wrap(~Variable, ncol = 3, scales = "free") +
+  labs(title = "Price as a function of continuous variables") +
+  plotTheme()
+
 # This function allows for the plug-in of variables from "studentData".
-testSignificance <- lm(price ~ ., data = test.Data %>% 
+testSignificance <- lm(price ~ ., data = train.Data %>% 
                     dplyr::select(price, 
                                   qualityCode,
                                   TotalFinishedSF,
                                   mainfloorSF,
                                   Age,
+                                  pop_den
                                   ))
 
 # This gives us our r-squared value, which measures fit to the training data.
@@ -374,7 +421,7 @@ fitControl <- trainControl(method = "cv", number = k)
 set.seed(825)
 
 # Multivariate regression 
-reg1 <- lm(price ~ ., data = train.Data %>% 
+reg1 <- lm(price ~ ., data = train.Data.1 %>% 
              dplyr::select(price, 
                            section_num,
                            qualityCode,
@@ -384,10 +431,9 @@ reg1 <- lm(price ~ ., data = train.Data %>%
                            Heating,
                            med_inc,
                            nbrRoomsNobath,
-                           vac_occ,
                            landmark_dist,
                            white_pop,
-                           tot_pop,
+                           pop_den,
                            pvty_pop,
                            privat_dist,
                            head_nn5,
@@ -404,11 +450,20 @@ reg1 <- lm(price ~ ., data = train.Data %>%
                            pgcount500m,
                            flood_dist))
 
-summary(reg1)
+stargazer(reg1, type = "text", title = "variation",out="table1.txt",dep.var.labels = "Housing Price")
+
+reg1.tidy <-
+  tidy(reg1,
+       "Section Number" = section_num)
+
+kable(reg1.tidy, digits = 2, caption = "Regression Model Predicting Variation on Housing Sales Price", 
+      col.names = c("Predictor","Estimate","Standard Error", "T-Value","P-Value")
+      ) %>%
+  kable_styling()
 
 # variables in the "select(...)" function are considered in the analysis here.
 regression.100foldcv <- 
-  train(price ~ ., data = train.Data %>% 
+  train(price ~ ., data = train.Data.1%>% 
           select(price, 
                  section_num,
                  qualityCode,
@@ -419,8 +474,6 @@ regression.100foldcv <-
                  med_inc,
                  landmark_dist,
                  nbrRoomsNobath,
-                 vac_occ,
-                 tot_pop,
                  pvty_pop,
                  privat_dist,
                  head_nn5,
@@ -457,14 +510,26 @@ ggplot(regression.100foldcv$resample, aes(x=MAE))+
 #################
 #Run model on unpredicted dataset
 
-test.Data <-
-  test.Data %>%
-  mutate(SalePrice.Predict = predict(reg1, test.Data))
+train.Data.2 <-
+  train.Data.2 %>%
+  mutate(SalePrice.Predict = predict(reg1, train.Data.2))
          
-test.Data <-
-  test.Data %>%
+train.Data.2 <-
+  train.Data.2 %>%
         mutate(SalePrice.Error = SalePrice.Predict - price,
          SalePrice.AbsError = abs(SalePrice.Predict - price),
-         SalePrice.APE = (abs(SalePrice.Predict - price)) / SalePrice.Predict)%>%
-  filter(SalePrice < 5000000)
+        SalePrice.APE = (abs(SalePrice.Predict - price)) / SalePrice.Predict)
 
+ggplot(data = train.Data.2, aes(price,SalePrice.Predict)) +
+  geom_point(size = .85,colour = "orange") + 
+  geom_smooth(method = "lm",colour = "red",size = 1.2)+
+  labs(x = "Obeserved Prices",y = "Predicted Prices", title = "Predicted Prices as a Function of Observed Prices",
+       subtitle = "Boulder County, CO (all in $)")+
+  theme(plot.title = element_text(size = 20),
+        plot.subtitle = element_text(size = 15),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.line = element_line(colour = "grey50", size = 1),
+        panel.grid.major = element_line(linetype = "dotted",size = 1))
+
+        
