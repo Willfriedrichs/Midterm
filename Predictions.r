@@ -520,6 +520,23 @@ train.Data.2 <-
          SalePrice.AbsError = abs(SalePrice.Predict - price),
         SalePrice.APE = (abs(SalePrice.Predict - price)) / SalePrice.Predict)
 
+#Table of mean absolute error and MAPE
+Prediction.Variation <- "Trial 1" 
+MeanAb <- mean(train.Data.2$SalePrice.AbsError,na.rm = T)
+MeanAPE <- mean(train.Data.2$SalePrice.APE, na.rm = T)
+
+MeanAb.table <- data.frame("Model"= Prediction.Variation,"Mean Absolute Error ($)"= MeanAb,
+                           "Mean Absolute Percentage Error (%)" = MeanAPE)
+
+kable(MeanAb.table, digit = 2,
+      caption = "Table 3. Mean Absolute Error and Absolute
+      Percentage Error on the Prediction Trial",
+      col.names = c("Regression",
+                    "Mean Absolute Error ($)",
+                    "Mean Absolute Percentage Error (%)"))%>%
+  kable_styling(latex_options = "HOLD_position")
+
+#Plot of predicted prices as a function of obersved price
 ggplot(data = train.Data.2, aes(price,SalePrice.Predict)) +
   geom_point(size = .85,colour = "orange") + 
   geom_smooth(method = "lm",colour = "red",size = 1.2)+
@@ -532,4 +549,148 @@ ggplot(data = train.Data.2, aes(price,SalePrice.Predict)) +
         axis.line = element_line(colour = "grey50", size = 1),
         panel.grid.major = element_line(linetype = "dotted",size = 1))
 
-        
+##################
+#Lag Price Errors
+
+train.Data.2 <-
+  left_join(train.Data.2,studentData)%>%
+  st_as_sf()
+
+coords.test <-  st_coordinates(train.Data.2) 
+neighborList.test <- knn2nb(knearneigh(coords.test, 5))
+spatialWeights.test <- nb2listw(neighborList.test, style="W")
+
+train.Data.2.lag <-
+train.Data.2 %>% 
+  mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error))
+
+ggplot(data = train.Data.2.lag, aes(lagPriceError, SalePrice.Error)) +
+  geom_point(size = .85,colour = "orange") + 
+  geom_smooth(method = "lm",colour = "red",size = 1.2)+
+  labs(x = "Spatial Lag of Errors (Mean error of five nearest neighbors)",y = "Sale Price Error", title = "Lag Sale Price Errors against Predicted Sale Price Error",
+       subtitle = "Boulder County, CO (all in $)")+
+  theme(plot.title = element_text(size = 20),
+        plot.subtitle = element_text(size = 15),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.line = element_line(colour = "grey50", size = 1),
+        panel.grid.major = element_line(linetype = "dotted",size = 1))
+
+#Moran's I
+
+moranTest <- moran.mc(train.Data.2$SalePrice.Error, 
+                      spatialWeights.test, nsim = 999)
+
+ggplot(as.data.frame(moranTest$res[c(1:999)]), aes(moranTest$res[c(1:999)])) +
+  geom_histogram(binwidth = 0.01) +
+  geom_vline(aes(xintercept = moranTest$statistic), colour = "#FA7800",size=1) +
+  scale_x_continuous(limits = c(-1, 1)) +
+  labs(title="Observed and permuted Moran's I",
+       subtitle= "Observed Moran's I in orange",
+       x="Moran's I",
+       y="Count") +
+  plotTheme()
+  
+#Map of predicted value on both == 1 and == 0
+test.Data <-
+  test.Data %>%
+  mutate(SalePrice.Predict = predict(reg1, test.Data))
+
+test.Data.sf <-
+  left_join(test.Data, studentData) %>%
+  st_as_sf()
+
+merge.predicted <-
+  train.Data.2 %>%
+  select(-SalePrice.Error,-SalePrice.AbsError, -SalePrice.APE)
+
+merge.predicted <-
+  rbind(merge.predicted,test.Data.sf)
+
+ggplot()+
+  geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
+  geom_sf(data = BoulderMuni_Boundary, aes(fill = Municipality, alpha=0.5),colour = "white")+
+  geom_sf(data = merge.predicted, aes(colour = q5(SalePrice.Predict)),size=.85)+
+  scale_colour_manual(values = palette5,
+                      labels=qbr(merge.predicted,"SalePrice.Predict"),
+                      name = "Predicted Sale Price")+
+  labs(title = "Predicted Sale Prices in Boulder County",
+       subtitle = "Bouolder, Colorado ($)",
+       caption = "Fig.2")+
+  mapTheme()
+
+#Adding Neighborhood Layer
+
+boulder.nb <-
+st_read("Boulder Neighborhoods.kml")%>%
+  st_transform('ESRI:102254')%>%
+  select(Name,geometry)
+
+#Calculate AbsError and MAPE by neighborhoods
+neighborhood_with_error <-
+  st_join(boulder.nb,train.Data.2)
+
+neighborhood_with_error <-
+  neighborhood_with_error %>%
+  group_by(Name)%>%
+  summarize("Mean.absE" = mean(SalePrice.AbsError, na.rm = T),
+            "MAPE" = mean(SalePrice.APE, na.rm = T))%>%
+  mutate(MAPE.Pct = MAPE*100)
+
+#Map of AbsError and Neighborhoods
+ggplot()+
+  geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
+  geom_sf(data = neighborhood_with_error, aes(fill = MAPE.Pct),colour = "white")+
+    scale_fill_gradient2(
+      low = "red",
+      mid = "white",
+      high = "blue",
+      midpoint = 0,
+      space = "Lab",
+      na.value = "grey50",
+      guide = "colourbar",
+      aesthetics = "fill",
+    name = "Absolute Percentage Error" ) +
+  mapTheme()
+
+#Municipality with Error
+muni_with_error <-
+  st_join(BoulderMuni_Boundary,train.Data.2)%>%
+  select(price,Municipality.x,SalePrice.APE,SalePrice.AbsError)
+
+muni_with_error <-
+  muni_with_error %>%
+  group_by(Municipality.x)%>%
+  summarize("Mean.absE" = mean(SalePrice.AbsError, na.rm = T),
+            "MAPE" = mean(SalePrice.APE, na.rm = T),
+            "Mean.price" = mean(price), na.rm = T)%>%
+  mutate(MAPE.Pct = MAPE*100)
+
+ggplot()+
+  geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
+  geom_sf(data = muni_with_error, aes(fill = MAPE.Pct),colour = "white")+
+  scale_fill_gradient2(
+    low = "red",
+    mid = "white",
+    high = "blue",
+    midpoint = 0,
+    space = "Lab",
+    na.value = "grey50",
+    guide = "colourbar",
+    aesthetics = "fill",
+    name = "Absolute Percentage Error" ) +
+  mapTheme()
+
+#scatterplot plot of MAPE by neighborhood as a function of mean price by neighborhood.
+
+ggplot(data = muni_with_error, aes(Mean.price, MAPE.Pct)) +
+  geom_point(size = 1.5,colour = "orange") + 
+  labs(x = "Mean Housing Prices",y = "Mean Absolute Percentage Errors", 
+       title = "Absolute Percentage Error as sa function of Mean Housing Prices by Municipalities",
+       subtitle = "Boulder County, CO")+
+  theme(plot.title = element_text(size = 20),
+        plot.subtitle = element_text(size = 15),
+        axis.title.x = element_text(size = 15),
+        axis.title.y = element_text(size = 15),
+        axis.line = element_line(colour = "grey50", size = 1),
+        panel.grid.major = element_line(linetype = "dotted",size = 1))
