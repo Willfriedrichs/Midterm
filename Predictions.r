@@ -65,7 +65,7 @@ tracts19 <- get_acs(geography = "tract",
                     output = "wide",
                     geometry=TRUE) %>% 
             st_transform('ESRI:102254') %>%
-            select( c("B01001_001E","B23025_004E","B06011_001E",
+            select( c("GEOID","B01001_001E","B23025_004E","B06011_001E",
                       "B06012_002E","B02001_002E","B25002_003E",
                       "B25013_006E","B08013_001E","B15012_009E","geometry") ) %>%
             rename(tot_pop = "B01001_001E",
@@ -666,9 +666,22 @@ muni_with_error <-
             "Mean.price" = mean(price), na.rm = T)%>%
   mutate(MAPE.Pct = MAPE*100)
 
+#Census Track with Error
+tracts_with_error <-
+  st_join(tracts19 ,train.Data.2)%>%
+  select(price,GEOID,SalePrice.APE,SalePrice.AbsError)
+
+tracts_with_error <-
+  tracts_with_error %>%
+  group_by(GEOID)%>%
+  summarize("Mean.absE" = mean(SalePrice.AbsError, na.rm = T),
+            "MAPE" = mean(SalePrice.APE, na.rm = T),
+            "Mean.price" = mean(price), na.rm = T)%>%
+  mutate(MAPE.Pct = MAPE*100)
+
 ggplot()+
   geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
-  geom_sf(data = muni_with_error, aes(fill = MAPE.Pct),colour = "white")+
+  geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = "white")+
   scale_fill_gradient2(
     low = "red",
     mid = "white",
@@ -683,7 +696,7 @@ ggplot()+
 
 #scatterplot plot of MAPE by neighborhood as a function of mean price by neighborhood.
 
-ggplot(data = muni_with_error, aes(Mean.price, MAPE.Pct)) +
+ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
   geom_point(size = 1.5,colour = "orange") + 
   labs(x = "Mean Housing Prices",y = "Mean Absolute Percentage Errors", 
        title = "Absolute Percentage Error as sa function of Mean Housing Prices by Municipalities",
