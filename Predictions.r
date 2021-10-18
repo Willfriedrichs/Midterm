@@ -13,6 +13,7 @@ library(gridExtra)
 library(jtools)     
 library(ggstance)
 library(rpart)
+library(ggplot2)
 
 #############################
 #Loading functions and color palettes
@@ -86,14 +87,11 @@ tracts19 <- get_acs(geography = "tract",
 
 # This loads all the data into "studentData".
 studentData <- st_read("studentData.geojson", crs = 'ESRI:102254')%>%
-  mutate(Age = 2021 - builtYear)
+  mutate(Age = 2021 - builtYear) %>%
+  mutate(TotalBath = nbrThreeQtrBaths + nbrFullBaths + nbrHalfBaths)
 
 studentData %>%
 st_make_valid(geometry)
-
-#Remove NA values from column "price"
-studentData <-
-  studentData[!is.na(studentData$price),]
 
 # Attach ACS data
 studentData <- st_join(studentData, tracts19, join = st_within)
@@ -107,16 +105,9 @@ st_read("https://opendata.arcgis.com/datasets/964b8f3b3dbe401bb28d49ac93d29dc4_0
 #Boulder Municipal Boundary
 BoulderMuni_Boundary <-
   st_read("https://opendata.arcgis.com/datasets/9597d3916aba47e887ca563d5ac15938_0.geojson")%>%
-  st_transform('ESRI:102254')
-
-BoulderMuni_Boundary.nosf <-
-  BoulderMuni_Boundary %>%
-  st_drop_geometry()%>%
+  st_transform('ESRI:102254')%>%
   rename(Municipality = ZONEDESC)
-
-BoulderMuni_Boundary <-
-  merge(BoulderMuni_Boundary,BoulderMuni_Boundary.nosf, all=TRUE)
-
+  
 
 #Map of Boulder County with Housing Sales Price and municipal boundary
 ggplot()+
@@ -125,7 +116,7 @@ ggplot()+
   geom_sf(data = studentData, aes(colour = q5(price)),size=.85)+
   scale_colour_manual(values = palette5,
                       labels=qbr(studentData,"price"),
-                      name = "Sale Price") 
+                      name = "Sale Price") +
   geom_sf(data = TrailHead, fill = "black")
 
 # Median Housing Price in Each Municipality
@@ -152,11 +143,16 @@ kable(Municipality.Summary, digits = 2) %>%
   footnote(general_title = "\n",
            general = "Table 1")
 
-
-
 # Creating dummy variables for municipalities
-#studentData <- st_join(studentData, BoulderMuni_Boundary, join = st_within)
-studentData <- mutate(studentData, Loui_dummy = case_when(Municipality=="Louisville"~ 1, Municipality!="Louisville"~ 0))     
+studentData <- st_join(studentData, BoulderMuni_Boundary, join = st_within)
+
+studentData <- 
+studentData %>%
+  select(-c(OBJECTID, ZONECLASS, LASTUPDATE,LASTEDITOR, REG_PDF_URL, Shape_STArea__, 
+            Shape_STLength__, ShapeSTArea,ShapeSTLength
+            ))
+
+studentData <- mutate(studentData, Loui_dummy = case_when(Municipality=="Louisville"~ 1, Municipality!="Louisville"~ 0))
 studentData <- mutate(studentData, Ward_dummy = case_when(Municipality=="Ward"~ 1, Municipality!="Ward"~ 0))
 studentData <- mutate(studentData, Jame_dummy = case_when(Municipality=="Jamestown"~ 1, Municipality!="Jamestown"~ 0))
 studentData <- mutate(studentData, Nede_dummy = case_when(Municipality=="Nederland"~ 1, Municipality!="Nederland"~ 0))
@@ -166,15 +162,17 @@ studentData <- mutate(studentData, Lafa_dummy = case_when(Municipality=="Lafayet
 studentData <- mutate(studentData, Long_dummy = case_when(Municipality=="Longmont"~ 1, Municipality!="Longmont"~ 0))
 studentData <- mutate(studentData, Lyon_dummy = case_when(Municipality=="Lyons"~ 1, Municipality!="Lyons"~ 0))
 studentData <- mutate(studentData, Supe_dummy = case_when(Municipality=="Superior"~ 1, Municipality!="Superior"~ 0))
-####################################################################
 
-                                      
-
-
-
-
-
-
+studentData$Loui_dummy[is.na(studentData$Loui_dummy)] <- 0
+studentData$Ward_dummy[is.na(studentData$Ward_dummy)] <- 0
+studentData$Jame_dummy[is.na(studentData$Jame_dummy)] <- 0
+studentData$Nede_dummy[is.na(studentData$Nede_dummy)] <- 0
+studentData$Boul_dummy[is.na(studentData$Boul_dummy)] <- 0
+studentData$Erie_dummy[is.na(studentData$Erie_dummy)] <- 0
+studentData$Lafa_dummy[is.na(studentData$Lafa_dummy)] <- 0
+studentData$Long_dummy[is.na(studentData$Long_dummy)] <- 0
+studentData$Lyon_dummy[is.na(studentData$Lyon_dummy)] <- 0
+studentData$Supe_dummy[is.na(studentData$Supe_dummy)] <- 0
 
 # Load Park data
 GreenSpacePolygon <- st_read("County_Open_Space.geojson") %>%
@@ -186,12 +184,31 @@ Park <- GreenSpacePolygon[!is.na(GreenSpacePolygon$PARK_GROUP),] %>%
 
 st_c <- st_coordinates
 
+
+
 studentData <-
   studentData %>% 
   mutate(park_nn1 = nn_function(st_c(studentData), st_c(Park), 1),
          park_nn2 = nn_function(st_c(studentData), st_c(Park), 2),
          park_nn3 = nn_function(st_c(studentData), st_c(Park), 3),
          park_dist = st_distance(studentData,Park))
+
+Park_in_buffer <-
+  st_join(Park,st_buffer(studentData,500),join = st_within)
+
+PKCount <-
+  Park_in_buffer %>%
+  count(MUSA_ID)%>%
+  st_drop_geometry()
+
+studentData <-
+  left_join(studentData, PKCount, by = "MUSA_ID" )
+
+studentData <-
+  studentData %>%
+  rename(PKCount500m = n)
+
+studentData$PKCount500m[is.na(studentData$PKCount500m)] <- 0
 
 # attach distance to green space data
 # studentData %>% mutate(green_dis = st_distance(studentData, GreenSpacePolygon))
@@ -206,9 +223,27 @@ studentData <- mutate(studentData, landmark_dist = st_distance(studentData, land
 # Loading Trail Heads Locations
 TrailHead <- 
   st_read("https://opendata.arcgis.com/datasets/5ade4ef915c54430a32026bcb03fe1d7_0.geojson") %>%
-  st_transform('ESRI:102254')
+  st_transform('ESRI:102254')%>%
+  select(geometry)
 
-#Apply Nearest Neighbor Function on Trail Heads
+#Apply buffer counts and nearest neighbor function on trail heads
+Trailhead_in_buffer <-
+  st_join(TrailHead,st_buffer(studentData,1000),join = st_within)
+
+TrailHeadCount <-
+  Trailhead_in_buffer %>%
+  count(MUSA_ID)%>%
+  st_drop_geometry()
+
+studentData <-
+  left_join(studentData, TrailHeadCount, by = "MUSA_ID" )
+
+studentData <-
+  studentData %>%
+  rename(TrailHead1000m = n)
+
+studentData$TrailHead1000m[is.na(studentData$TrailHead1000m)] <- 0
+
 studentData <-
   studentData %>% 
   mutate(
@@ -223,19 +258,36 @@ studentData <-
   mutate(trail_dist = st_distance(studentData, TrailHead))
 
 #Loading Playground Locations
-#Playground <- 
-#  st_read("Playground_Sites_Points.GEOJSON") %>%
-#  st_transform('ESRI:102254')
+Playground <- 
+  st_read("Playground_Sites_Points.GEOJSON") %>%
+  st_transform('ESRI:102254')%>%
+  drop_na(PROPID)%>%
+  select(geometry)
 
-#Playground <-
-#  Playground[!is.na(Playground$PROPID),]
+Playground.sf <-
+  st_join(Playground,st_buffer(studentData,500),join = st_within)
+
+PGCount <-
+  Playground.sf %>%
+  count(MUSA_ID)%>%
+  st_drop_geometry()
+
+studentData <-
+  left_join(studentData, PGCount, by = "MUSA_ID" )
+  
+studentData <-
+  studentData %>%
+  rename(pgcount500m = n)
+
+studentData$pgcount500m[is.na(studentData$pgcount500m)] <- 0
+  
 
 #Loading School Locations
 Schools <- 
   st_read("CDPHE_CDOE_School_Locations_and_District_Office_Locations.GEOJSON")%>%
   st_transform('ESRI:102254')%>%
   filter(COUNTY == "BOULDER")
-
+  
 Private_School <-
   filter(Schools, startsWith(Type_, "Non-"))
 
@@ -248,29 +300,47 @@ studentData <-
   studentData %>%
   mutate(
     privatesch_nn1 = nn_function(st_c(studentData),st_c(Private_School),1),
+    privatesch_nn2 = nn_function(st_c(studentData),st_c(Private_School),2),
+    privatesch_nn3 = nn_function(st_c(studentData),st_c(Private_School),3),
     privat_dist = st_distance(studentData,Private_School))
 
 #Loading Flood Plain
 Floodplain <-
  st_read("https://opendata.arcgis.com/datasets/30674682e55e4e1b8b0e407b0fe23b9a_0.geojson") %>%
- st_transform('ESRI:102254')
+ st_transform('ESRI:102254')%>%
+  st_union()
 
 studentData <-
-  mutate(flood_nn1 = nn_function(st_c(studentData), st_c(Floodplain), 1))
+  studentData %>%
+  mutate(flood_dist = st_distance(studentData, Floodplain))
+
 
 # This selects all numeric variables as preparation for the
 # correlation analysis that follows.
+
 cleanData <- 
   select_if(st_drop_geometry(studentData), is.numeric) %>%
   select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount, MUSA_ID))
 
+cleanData$Ac[(cleanData$Ac)== 0] <- NA
+cleanData$Heating[(cleanData$Heating) == 0] <- NA
+
+
 
 # The test data only includes rows comprising the test set.
-testData <- filter(cleanData, toPredict == 0)
+# Remove Outliars
+train.Data <- filter(cleanData, toPredict == 0) %>%
+  filter(price < 30000000)%>%
+  na.omit()
+  
+  
+  
+test.Data <- filter(cleanData, toPredict == 1)
+
 
 # This function here attempts to fit a linear model to
 # the relationship between "testData" variables.
-ggplot(data = testData, aes(head_nn3, price)) +
+ggplot(data = studentData, aes(Heating, price)) +
        geom_point(size = .5) + 
        geom_smooth(method = "lm")
 
@@ -284,12 +354,13 @@ ggcorrplot(
   labs(title = "Correlation across numeric variables") 
 
 # This function allows for the plug-in of variables from "studentData".
-testSignificance <- lm(price ~ ., data = cleanData %>% 
+testSignificance <- lm(price ~ ., data = test.Data %>% 
                     dplyr::select(price, 
                                   qualityCode,
                                   TotalFinishedSF,
                                   mainfloorSF,
-                                  Age))
+                                  Age,
+                                  ))
 
 # This gives us our r-squared value, which measures fit to the training data.
 summary(testSignificance)
@@ -303,86 +374,97 @@ fitControl <- trainControl(method = "cv", number = k)
 set.seed(825)
 
 # Multivariate regression 
-reg1 <- lm(price ~ ., data = cleanData %>% 
-dplyr::select(price, 
-              qualityCode,
-              TotalFinishedSF,
-              Ac,
-              Age,
-              Heating,
-              med_inc,
-              nbrRoomsNobath,
-              nbrThreeQtrBaths,
-              nbrFullBaths,
-              nbrHalfBaths,
-              tt_work,
-              vac_occ,
-              landmark_dist,
-              tot_pop,
-              pop_den,
-              white_pop,
-              pvty_pop,
-              privat_dist,
-              head_nn3,
-              park_nn3,
-              privatesch_nn1,
-              school_nn1,
-              Loui_dummy,
-              Ward_dummy,
-              Jame_dummy,
-              Nede_dummy,
-              Boul_dummy,
-              Erie_dummy,
-              Lafa_dummy,
-              Long_dummy,
-              Lyon_dummy,
-              Supe_dummy))
+reg1 <- lm(price ~ ., data = train.Data %>% 
+             dplyr::select(price, 
+                           section_num,
+                           qualityCode,
+                           TotalFinishedSF,
+                           Age,
+                           Ac,
+                           Heating,
+                           med_inc,
+                           nbrRoomsNobath,
+                           vac_occ,
+                           landmark_dist,
+                           white_pop,
+                           tot_pop,
+                           pvty_pop,
+                           privat_dist,
+                           head_nn5,
+                           park_nn1,
+                           Loui_dummy,
+                           Ward_dummy,
+                           Jame_dummy,
+                           Nede_dummy,
+                           Boul_dummy,
+                           Erie_dummy,
+                           Lafa_dummy,
+                           Long_dummy,
+                           TotalBath,
+                           pgcount500m,
+                           flood_dist))
 
 summary(reg1)
-###############################################################################
-
 
 # variables in the "select(...)" function are considered in the analysis here.
 regression.100foldcv <- 
-  train(price ~ ., data = cleanData %>% 
-                        select(price, 
-                        qualityCode,
-                        TotalFinishedSF,
-                        Ac,
-                        Age,
-                        Heating,
-                        med_inc,
-                        nbrRoomsNobath,
-                        nbrThreeQtrBaths,
-                        nbrFullBaths,
-                        nbrHalfBaths,
-                        tt_work,
-                        vac_occ,
-                        landmark_dist,
-                        tot_pop,
-                        pop_den,
-                        white_pop,
-                        pvty_pop,
-                        privat_dist,
-                        head_nn3,
-                        park_nn3,
-                        privatesch_nn1,
-                        school_nn1,
-                        Loui_dummy,
-                        Ward_dummy,
-                        Jame_dummy,
-                        Nede_dummy,
-                        Boul_dummy,
-                        Erie_dummy,
-                        Lafa_dummy,
-                        Long_dummy,
-                        Lyon_dummy,
-                        Supe_dummy,
-                         ), 
-        method = "lm", trControl = fitControl, na.action = na.pass)
-warnings()
+  train(price ~ ., data = train.Data %>% 
+          select(price, 
+                 section_num,
+                 qualityCode,
+                 TotalFinishedSF,
+                 Ac,
+                 Heating,
+                 Age,
+                 med_inc,
+                 landmark_dist,
+                 nbrRoomsNobath,
+                 vac_occ,
+                 tot_pop,
+                 pvty_pop,
+                 privat_dist,
+                 head_nn5,
+                 park_nn1,
+                 Loui_dummy,
+                 Nede_dummy,
+                 Boul_dummy,
+                 Erie_dummy,
+                 Long_dummy,
+                 Lyon_dummy,
+                 pgcount500m,
+                 TotalBath,
+                 flood_dist
+          ),
+  method = "lm", trControl = fitControl, na.action = na.pass)
+
+
 
 # The resulting Mean Absolute Error (MAE) of running this line tells us how
 # successful our model is at predicting unknown data. 
 regression.100foldcv
+
+#################
+#MAE Histogram
+#This allows you to see the distribution of MAE of the folds
+
+ggplot(regression.100foldcv$resample, aes(x=MAE))+
+  geom_histogram(colour = "white",fill="orange")+
+  labs(title="Distribution of MAE",x="Mean Absolute Error", y = "Count",
+       subtitle = "k-fold cross-validation; k = 100",
+       caption = "Figure 2")+
+  theme_apa()
+
+#################
+#Run model on unpredicted dataset
+
+test.Data <-
+  test.Data %>%
+  mutate(SalePrice.Predict = predict(reg1, test.Data))
+         
+test.Data <-
+  test.Data %>%
+        mutate(SalePrice.Error = SalePrice.Predict - price,
+         SalePrice.AbsError = abs(SalePrice.Predict - price),
+         SalePrice.APE = (abs(SalePrice.Predict - price)) / SalePrice.Predict)%>%
+  filter(SalePrice < 5000000)
 
