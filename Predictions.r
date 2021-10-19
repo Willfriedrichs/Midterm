@@ -15,6 +15,7 @@ library(ggstance)
 library(rpart)
 library(ggplot2)
 library(stargazer)
+library(xtable)
 
 #############################
 #Loading functions and color palettes
@@ -302,7 +303,7 @@ studentData <-
     privatesch_nn1 = nn_function(st_c(studentData),st_c(Private_School),1),
     privatesch_nn2 = nn_function(st_c(studentData),st_c(Private_School),2),
     privatesch_nn3 = nn_function(st_c(studentData),st_c(Private_School),3),
-    privat_dist = st_distance(studentData,Private_School))
+    privat_dist = as.numeric(st_distance(studentData,Private_School,by_element = TRUE)))
 
 #Loading Flood Plain
 Floodplain <-
@@ -640,16 +641,16 @@ neighborhood_with_error <-
 #Map of AbsError and Neighborhoods
 ggplot()+
   geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
-  geom_sf(data = neighborhood_with_error, aes(fill = MAPE.Pct),colour = "white")+
-    scale_fill_gradient2(
-      low = "red",
-      mid = "white",
-      high = "blue",
-      midpoint = 0,
-      space = "Lab",
-      na.value = "grey50",
-      guide = "colourbar",
-      aesthetics = "fill",
+  geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = "white")+
+  scale_fill_gradient2(
+    low = "red",
+    mid = "white",
+    high = "blue",
+    midpoint = 0,
+    space = "Lab",
+    na.value = "grey50",
+    guide = "colourbar",
+    aesthetics = "fill",
     name = "Absolute Percentage Error" ) +
   mapTheme()
 
@@ -668,12 +669,12 @@ muni_with_error <-
 
 #Census Track with Error
 tracts_with_error <-
-  st_join(tracts19 ,train.Data.2)%>%
-  select(price,GEOID,SalePrice.APE,SalePrice.AbsError)
+  st_join(tracts19 ,train.Data.2) %>%
+  select(GEOID.x,price,SalePrice.APE,SalePrice.AbsError)
 
 tracts_with_error <-
   tracts_with_error %>%
-  group_by(GEOID)%>%
+  group_by(GEOID.x)%>%
   summarize("Mean.absE" = mean(SalePrice.AbsError, na.rm = T),
             "MAPE" = mean(SalePrice.APE, na.rm = T),
             "Mean.price" = mean(price), na.rm = T)%>%
@@ -682,15 +683,11 @@ tracts_with_error <-
 ggplot()+
   geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
   geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = "white")+
-  scale_fill_gradient2(
-    low = "red",
-    mid = "white",
-    high = "blue",
-    midpoint = 0,
+  scale_colour_gradient(
+    low = "indianred1",
+    high = "indianred4",
     space = "Lab",
     na.value = "grey50",
-    guide = "colourbar",
-    aesthetics = "fill",
     name = "Absolute Percentage Error" ) +
   mapTheme()
 
@@ -707,3 +704,75 @@ ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
         axis.title.y = element_text(size = 15),
         axis.line = element_line(colour = "grey50", size = 1),
         panel.grid.major = element_line(linetype = "dotted",size = 1))
+
+###########################
+#Summerary statistics on variables used
+##########################
+
+InterCh.va <-
+  studentData %>%
+  select("Section.Num" = section_num,
+         "Quality.Code" = qualityCode,
+         TotalFinishedSF,
+         Age,
+         Ac,
+         Heating,
+         "Total.Bath" = TotalBath,
+         "Rooms.No.bath" = nbrRoomsNobath)%>%
+  st_drop_geometry()
+
+SpacialStruct.va <-
+  studentData %>%
+  select("Med.Income" = med_inc,
+         "White.Pop" = white_pop,
+         "Pop.Den" = pop_den,
+         "Pvty.Pop" = pvty_pop) %>%
+  st_drop_geometry()
+         
+Amen.va <-
+  studentData %>%
+  select("LandMark.Dist" = landmark_dist,
+         "Private.Dist" = privat_dist,
+         "Trailhead.Dist" = head_nn5,
+         "Park.Dist" = park_nn1,
+         "PGCount.500m" = pgcount500m,
+         "Flood.Dist" = flood_dist)%>%
+  st_drop_geometry()
+
+stargazer(InterCh.va, type = "text", title = "Statistic Summary: Internal Characteristic Variables",
+          digits = 0, 
+          notes = c("Section.Num: Building section number by uses",
+          "Quality.Code: Quality as determined by our appraisal staff",
+          "TotalFinishedSF: Total number of finished square feet",
+          "Age: Age of the structure",
+          "Ac: Air Conditioner Type (Lower N value due to absence of AC units)",
+          "Heating: Heating System Type (Lower N value due to absence of Heating units)",
+          "Total.Bath: Number of Bathrooms",
+          "Rooms.No.Bath: Number of Rooms that are not bathrooms"))
+
+stargazer(Amen.va, type = "text", title = "Statistic Summary: Amenities",
+          digits = 0,
+          notes = c("Unit: Meters Source: Boulder County Open Data Portal",
+            "LandMark.Dist: Distance to the nearest landmark",
+         "Private.Dist: Distance to the nearest private school",
+         "Trailhead.Dist: Distance to the nearest trail head",
+         "Park.Dist: Distance to the nearest park",
+         "PGCount.500: Playground count in 500m radius of a sold house",
+         "Flood.Dist: Distance to the nearest Floodplain"))
+
+stargazer(SpacialStruct.va, type = "text", title = "Statistic Summary: Spacial Structure",
+          digits = 0, 
+          notes = c("Source: One-year American Community Survey",
+          "Data collected by census tracts",
+          "Med.Income: Medium Family Income",
+         "White.Pop: Population identified as 'white'",
+         "Pop.Den: Population density by census tract",
+         "Pvty.Pop: Population living in poverty",
+         "Some variables are catagorical. In these variables below",
+         "'1' indicates the sold house exists within the municipality,",
+         "0 means non-exsiting:",
+         "Loui\\_dummy, Ward\\_dummy, Jame\\_dummy, Nede\\_dummy,Boul\\_dummy",
+         "Erie\\_dummy,Lafa\\_dummy,Long\\_dummy,",
+         "representing Louisvelle, Ward, Jamestown, Nederland, Boulder, Erie,", 
+         "Lafayette, and Longmont, respectively"))
+
