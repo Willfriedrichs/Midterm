@@ -1,6 +1,10 @@
 ---
 title: "Midterm Project"
+<<<<<<< HEAD
+author: "Yihong Hu, Sabir Nazarov, Will Friedrichs"
+=======
 author: "Yihong Hu Sabir Nazarov Will Friedrichs"
+>>>>>>> 05ab802ca33d750c6faefee82b91766e0f572e3e
 date: "10/20/2021"
 output: 
   html_document:
@@ -9,7 +13,12 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: true
+<<<<<<< HEAD
+  # runtime: shiny
+
+=======
     runtime: shiny
+>>>>>>> 05ab802ca33d750c6faefee82b91766e0f572e3e
 ---
 
 ```{r setup, include=FALSE}
