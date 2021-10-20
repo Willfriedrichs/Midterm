@@ -1,6 +1,6 @@
 ---
 title: "Midterm Project"
-author: , "Yihong Hu", "Sabir Nazarov", "Will Friedrichs"
+author: "Yihong Hu, Sabir Nazarov, Will Friedrichs"
 date: "10/20/2021"
 output: 
   html_document:
@@ -9,7 +9,7 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: true
-  runtime: shiny
+  # runtime: shiny
 
 ---
 
@@ -678,7 +678,7 @@ ggplot(data = train.Data.2.lag, aes(lagPriceError, SalePrice.Error)) +
 ## Moran's I
 
 Describe what we did here.
-```{r Moran's I}
+```{r Morans I}
 #Moran's I
 
 moranTest <- moran.mc(train.Data.2$SalePrice.Error, 
