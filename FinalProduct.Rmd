@@ -1,10 +1,6 @@
 ---
 title: "Midterm Project"
-# <<<<<<< HEAD
 author: "Yihong Hu, Sabir Nazarov, Will Friedrichs"
-# =======
-# author: "Yihong Hu Sabir Nazarov Will Friedrichs"
-# >>>>>>> 05ab802ca33d750c6faefee82b91766e0f572e3e
 date: "10/20/2021"
 output: 
   html_document:
@@ -13,26 +9,23 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: true
-# <<<<<<< HEAD
-
     runtime: shiny
 # >>>>>>> 05ab802ca33d750c6faefee82b91766e0f572e3e
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-	message = FALSE,
-	warning = FALSE,
-	include = TRUE,
-	cache = TRUE,
-	echo=TRUE
-)
-```
-
 # Introduction
 
+<<<<<<< Updated upstream
 This project involves using Geospatial machine learning to predict housing prices in Boulder County, Colorado.  The project can be categorized into four broad stages: data gathering, feature creation, multivariate regression modeling, and generating predictions.  Though these stages are presented as sequential, in development the process is cyclical, requiring periodic returns to earlier stages. Presented in this document is R code which can be adapted for other localities, along with plots and tables representing the content of the analysis.  
 
+=======
+Zillow's housing market predictions are an integral part of its business model, helping the company achieve a greater understanding of how the market will value properties. Our team is confident that through our geospatial machine learning-based model that considers not only attributes of homes, but local factors as well, we can improve Zillow's house price predictions for the Boulder County study area and provide a template which can be adapted to other localities.
+
+This project outlines and analyzes the process by which we created our model in four broad stages: data gathering, feature creation, multivariate regression modeling, and prediction generation. We present these stages sequentially, though the ordering does not necessarily reflect the order in which parts of the model were constructed.
+
+Along with written analysis, plots, and tables, the R code that produces the model is presented in the document in chunks. 
+_The chunk below loads 17 libraries for use later, helps set up the generation of the r markdown file, gives access to online resources helpful to our analysis, and sets up a color scheme to be used for data visualization._
+>>>>>>> Stashed changes
 
 ```{r The Setup, message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -52,17 +45,30 @@ library(ggstance)
 library(rpart)
 library(ggplot2)
 library(stargazer)
-```
 
-
+<<<<<<< Updated upstream
 ### Functions & Color Pallettes
 
 
 ```{r Functions & Color Pallettes, echo = FALSE}
+=======
+# set up knitr
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	include = TRUE,
+	cache = TRUE,
+	echo=TRUE
+)
+
+# Set root directory
+>>>>>>> Stashed changes
 root.dir = "https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/"
 
+# Locate the source of functions from raw.githubusercontent.com
 source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/functions.r")
 
+# Save q5 and qbr functions for later use
 q5 <- function(variable) {as.factor(ntile(variable, 5))}
 
 qbr <- function(df, variable, rnd) {
@@ -75,9 +81,9 @@ qbr <- function(df, variable, rnd) {
   }
 }
 
+# Set a color palette for later use
 palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
 ```
-
 
 # Data
 
