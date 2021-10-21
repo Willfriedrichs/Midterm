@@ -1,10 +1,10 @@
 ---
 title: "Midterm Project"
-<<<<<<< HEAD
+# <<<<<<< HEAD
 author: "Yihong Hu, Sabir Nazarov, Will Friedrichs"
-=======
-author: "Yihong Hu Sabir Nazarov Will Friedrichs"
->>>>>>> 05ab802ca33d750c6faefee82b91766e0f572e3e
+# =======
+# author: "Yihong Hu Sabir Nazarov Will Friedrichs"
+# >>>>>>> 05ab802ca33d750c6faefee82b91766e0f572e3e
 date: "10/20/2021"
 output: 
   html_document:
@@ -13,12 +13,10 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: true
-<<<<<<< HEAD
-  # runtime: shiny
+# <<<<<<< HEAD
 
-=======
     runtime: shiny
->>>>>>> 05ab802ca33d750c6faefee82b91766e0f572e3e
+# >>>>>>> 05ab802ca33d750c6faefee82b91766e0f572e3e
 ---
 
 ```{r setup, include=FALSE}
@@ -26,16 +24,21 @@ knitr::opts_chunk$set(
 	message = FALSE,
 	warning = FALSE,
 	include = TRUE,
-	cache = FALSE,
+	cache = TRUE,
 	echo=TRUE
 )
 ```
 
-## The Setup
+# Introduction
 
-Hide this setup info.
+This project involves using Geospatial machine learning to predict housing prices in Boulder County, Colorado.  The project can be categorized into four broad stages: data gathering, feature creation, multivariate regression modeling, and generating predictions.  Though these stages are presented as sequential, in development the process is cyclical, requiring periodic returns to earlier stages. Presented in this document is R code which can be adapted for other localities, along with plots and tables representing the content of the analysis.  
 
-```{r The Setup, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+
+
+
+
+```{r The Setup, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(tidycensus)
 library(sf)
@@ -56,7 +59,7 @@ library(stargazer)
 ```
 
 
-## Functions & Color Pallettes
+### Functions & Color Pallettes
 
 Hide this section.
 
@@ -81,23 +84,14 @@ palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
 ```
 
 
-## Census Data
+# Data
 
-Describe data gathering.
+We begin with  tract-level geography, population, and demographic data pulled from the US Government Census API.  The data uses American Community Survey results for 2019.  Variables of interest are isolated and wrangled to create features required for the analysis.
 
 
-```{r ACS Data}
+```{r ACS Data, message=FALSE, warning=FALSE}
 varlist_2019 <- load_variables(2019, "acs5", cache = TRUE)
 
-#Total population
-#Total employed population
-#Median household income
-#Population with income below poverty level
-#White population
-#Vacant occupancy
-#Owner-occupied housing units: bachelor's degree or higher
-#Aggregate travel time to work
-#Total number of bachelor's degrees in science and engineering related fields
 census_api_key("94efffd19b56ad527e379faea1653ee74dc3de4a",overwrite = TRUE)
 
 tracts19 <- get_acs(geography = "tract",                         
@@ -129,9 +123,9 @@ tracts19 <- get_acs(geography = "tract",
 
 ## Project Data
 
-Describe what we did here.
+The primary data for the analysis was provided along with the project requirements.  Here we loaded, wrangled, and joined the data with the ACS geographies from above.  Likewise, Boulder County and City boundaries are established from open-source geometry files.  Table 1, below, summarizes key indicators by municipality. 
 
-```{r Project Data}
+```{r Project Data, message=FALSE, warning=FALSE, echo=FALSE}
 # This loads all the data into "studentData".
 studentData <- st_read("studentData.geojson", crs = 'ESRI:102254')%>%
   mutate(Age = 2021 - builtYear) %>%
@@ -189,7 +183,7 @@ kable(Municipality.Summary, digits = 2) %>%
   footnote(general_title = "\n",
            general = "Table 1")
 
-# Creating dummy variables for municipalities
+
 studentData <- st_join(studentData, BoulderMuni_Boundary, join = st_within)
 
 studentData <- 
@@ -198,6 +192,7 @@ studentData %>%
             Shape_STLength__, ShapeSTArea,ShapeSTLength
             ))
 
+# Creating dummy variables for municipalities
 studentData <- mutate(studentData, Loui_dummy = case_when(Municipality=="Louisville"~ 1, Municipality!="Louisville"~ 0))
 studentData <- mutate(studentData, Ward_dummy = case_when(Municipality=="Ward"~ 1, Municipality!="Ward"~ 0))
 studentData <- mutate(studentData, Jame_dummy = case_when(Municipality=="Jamestown"~ 1, Municipality!="Jamestown"~ 0))
@@ -221,9 +216,9 @@ studentData$Lyon_dummy[is.na(studentData$Lyon_dummy)] <- 0
 studentData$Supe_dummy[is.na(studentData$Supe_dummy)] <- 0
 ```
 
-## Parks, Landmarks, and Trailheads
+### Parks, Landmarks, and Trailheads
 
-Describe what we did here.
+Considering that Boulder region is rich in natural beauty and outdoor activities, we use the buyers logic that places a premium on proximity to these locations.  We incorporate the following data into the analysis: parks, natural landmarks, and entrance to trail heads.  For example, we create a variable that captures the number of parks within a 500 meter radius, trail heads within 1000 meter radius.
 
 
 ```{r Parks & Landmarks}
@@ -234,9 +229,7 @@ GreenSpacePolygon <- st_read("County_Open_Space.geojson") %>%
 Park <- GreenSpacePolygon[!is.na(GreenSpacePolygon$PARK_GROUP),] %>%
         st_centroid()
   
-
 st_c <- st_coordinates
-
 
 
 studentData <-
@@ -312,7 +305,7 @@ studentData <-
 ```
 
 
-## Playgrounds, Schools, Flood Plains
+### Playgrounds, Schools, Flood Plains
 
 Describe what we did here.
 
@@ -388,7 +381,7 @@ cleanData$Ac[(cleanData$Ac)== 0] <- NA
 cleanData$Heating[(cleanData$Heating) == 0] <- NA
 ```
 
-## Train & Test Data
+# The Model
 
 Describe what we did here.
 
