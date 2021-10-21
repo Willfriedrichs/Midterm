@@ -19,8 +19,7 @@ Zillow's housing market predictions are an integral part of its business model, 
 
 This project outlines and analyzes the process by which we created our model in four broad stages: data gathering, feature creation, multivariate regression modeling, and prediction generation. We present these stages sequentially, though the ordering does not necessarily reflect the order in which parts of the model were constructed.
 
-Along with written analysis, plots, and tables, the R code that produces the model is presented in the document in chunks. 
-_The chunk below loads 17 libraries for use later, helps set up the generation of the r markdown file, gives access to online resources helpful to our analysis, and sets up a color scheme to be used for data visualization._
+Along with written analysis, plots, and tables, the R code that produces the model is presented in the document in chunks. The chunk below, for example, loads 17 libraries for use later, helps set up the generation of the r markdown file, gives access to online resources helpful to our analysis, and sets up a color scheme to be used for data visualization.
 
 ```{r The Setup, message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -73,9 +72,7 @@ qbr <- function(df, variable, rnd) {
 palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
 ```
 
-# Data
-
-We begin with  tract-level geography, population, and demographic data pulled from the US Government Census API.  The data uses American Community Survey results for 2019.  Variables of interest are isolated and wrangled to create features required for the analysis.
+The data gathering process begins by accessing tract-level geography, population, and demographic data from the US Government Census API. The data uses American Community Survey results for 2019. Variables of interest are isolated and wrangled to create features required for the analysis.
 
 
 ```{r ACS Data, message=FALSE, warning=FALSE}
@@ -112,7 +109,12 @@ tracts19 <- get_acs(geography = "tract",
 
 ## Project Data
 
-The primary data for the analysis was provided along with the project requirements.  Here we loaded, wrangled, and joined the data with the ACS geographies from above.  Likewise, Boulder County and City boundaries are established from open-source geometry files.  Table 1, below, summarizes key indicators by municipality. We can see that the price is very much depended on mucipality. 
+The primary training dataset provides information on a variety of features associated with houses, along with house prices. Some of the houses have prices listed, while others do not. After other variables are added to the dataset for each house, OLS regression uses houses with price information to create our model, which is a formula that can produce price from those oteher variables. 
+
+Given the original primary dataset, we wrangled and joined ACS tract-based demographic data that we theorized could predict housing prices. Each house is ascribed the demographic variables associated with its tract.
+
+Boulder County and the boundaries of the municipalities within are established from open-source geometry files. Table 1, below, summarizes key indicators by municipality. Each variable represents the mean values ascribed to homes in the municipality. For example, total population represents not the population of the municipality, but the mean tract population ascribed to each house. The table reveals that the price is strongly related to municipality. 
+
 
 ```{r Project Data, message=FALSE, warning=FALSE, echo=FALSE}
 # This loads all the data into "studentData".
