@@ -322,7 +322,7 @@ studentData <-
 
 cleanData <- 
   select_if(st_drop_geometry(studentData), is.numeric) %>%
-  select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount, MUSA_ID))%>%
+  select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount))%>%
   slice(-2638)
 
 cleanData$Ac[(cleanData$Ac)== 0] <- NA
@@ -428,9 +428,7 @@ reg1 <- lm(price ~ ., data = train.Data.1 %>%
                            qualityCode,
                            TotalFinishedSF,
                            Age,
-                           Ac,
-                           Heating,
-                           med_inc,
+                          med_inc,
                            nbrRoomsNobath,
                            landmark_dist,
                            white_pop,
@@ -596,6 +594,8 @@ ggplot(as.data.frame(moranTest$res[c(1:999)]), aes(moranTest$res[c(1:999)])) +
 test.Data <-
   test.Data %>%
   mutate(SalePrice.Predict = predict(reg1, test.Data))
+
+write.csv(test.Data, "Prediction.r.2.csv")
 
 test.Data.sf <-
   left_join(test.Data, studentData) %>%

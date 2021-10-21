@@ -34,10 +34,6 @@ knitr::opts_chunk$set(
 This project involves using Geospatial machine learning to predict housing prices in Boulder County, Colorado.  The project can be categorized into four broad stages: data gathering, feature creation, multivariate regression modeling, and generating predictions.  Though these stages are presented as sequential, in development the process is cyclical, requiring periodic returns to earlier stages. Presented in this document is R code which can be adapted for other localities, along with plots and tables representing the content of the analysis.  
 
 
-
-
-
-
 ```{r The Setup, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(tidycensus)
@@ -61,9 +57,8 @@ library(stargazer)
 
 ### Functions & Color Pallettes
 
-Hide this section.
 
-```{r Functions & Color Pallettes}
+```{r Functions & Color Pallettes, echo = FALSE}
 root.dir = "https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/"
 
 source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/functions.r")
@@ -95,7 +90,7 @@ varlist_2019 <- load_variables(2019, "acs5", cache = TRUE)
 census_api_key("94efffd19b56ad527e379faea1653ee74dc3de4a",overwrite = TRUE)
 
 tracts19 <- get_acs(geography = "tract",                         
-                    variables = c("B01001_001","B23025_004","B06011_001",
+                    variables = c("B01001_001","B23025_004","B19001_001",
                                   "B06012_002","B02001_002","B25002_003",
                                   "B25013_006","B08013_001","B15012_009"), 
                     year=2019, 
@@ -109,7 +104,7 @@ tracts19 <- get_acs(geography = "tract",
                       "B25013_006E","B08013_001E","B15012_009E","geometry") ) %>%
             rename(tot_pop = "B01001_001E",
                    empl_pop = "B23025_004E",
-                   med_inc = "B06011_001E",
+                   med_inc = "B19001_001",
                    pvty_pop = "B06012_002E",
                    white_pop = "B02001_002E",
                    vac_occ = "B25002_003E",
@@ -123,7 +118,7 @@ tracts19 <- get_acs(geography = "tract",
 
 ## Project Data
 
-The primary data for the analysis was provided along with the project requirements.  Here we loaded, wrangled, and joined the data with the ACS geographies from above.  Likewise, Boulder County and City boundaries are established from open-source geometry files.  Table 1, below, summarizes key indicators by municipality. 
+The primary data for the analysis was provided along with the project requirements.  Here we loaded, wrangled, and joined the data with the ACS geographies from above.  Likewise, Boulder County and City boundaries are established from open-source geometry files.  Table 1, below, summarizes key indicators by municipality. We can see that the price is very much depended on mucipality. 
 
 ```{r Project Data, message=FALSE, warning=FALSE, echo=FALSE}
 # This loads all the data into "studentData".
@@ -307,7 +302,7 @@ studentData <-
 
 ### Playgrounds, Schools, Flood Plains
 
-Describe what we did here.
+Amenities and public services are important aspects to choose one's location for his/her house. Considering most of the house buyers are families with children, playgrounds and schools are chosen as indicators: we create variables that captures the number of playgrounds and schools within a 500 meter radius. Housing distance to flood plains are considered due to concern of safety. Boulder County has encountered high rate of flooding for the past decade.
 
 ```{r PLaygrounds & Schools}
 #Loading Playground Locations
@@ -355,7 +350,7 @@ studentData <-
     privatesch_nn1 = nn_function(st_c(studentData),st_c(Private_School),1),
     privatesch_nn2 = nn_function(st_c(studentData),st_c(Private_School),2),
     privatesch_nn3 = nn_function(st_c(studentData),st_c(Private_School),3),
-    privat_dist = st_distance(studentData,Private_School))
+    privat_dist = st_distance(studentData,Private_School, by_element = TRUE))
 
 #Loading Flood Plain
 Floodplain <-
@@ -383,7 +378,11 @@ cleanData$Heating[(cleanData$Heating) == 0] <- NA
 
 # The Model
 
-Describe what we did here.
+## Preparation for machine learning and regression model
+
+Regression model is a good predicting method that considers all the interested variables. In order to prepare for the regression, we need to train our data by machine learning and cross-validate our to see if the model is appropriate to generalize on other data sets. 
+
+First, We do a 75/25 split of the data with price information with selected variables. 75% of the data is to be trained on. 25% is to be tested on for validation. 
 
 ```{r Train & Test}
 # The test data only includes rows comprising the test set.
@@ -432,15 +431,20 @@ train.Data.clean <-
          pgcount500m,
          TotalBath,
          flood_dist,
-         landmark_dist)
+         landmark_dist,
+         privat_dist)
 ```
 
 
 ## Correllation & Test Signifcance
 
-Describe what we did here.
+Prior to the the regression set-up, the relationship across all the variables are evaluated to see if they are significant indicator for prediction. In Fig.1 Pearson Correlation is imputed: a strong orange shows strong positive correlation and a strong green shows strong negative correlate between selected variables. 
 
-```{r Correllation & Test Signicance}
+Note that price is strongly correlated with section number, quality code, total finished square footage, number of bathrooms, if it's the city of Boulder, and count of playground within 500 meter radius. 
+
+Fig 2 is a in-depth look of Fig 1 where we evaluate correlation between price and selected variable. Strong positive correlation is seen between price and total square footage. Negative correlation is seen between price and distance away from landmark and private schools, indicating the further away from landmark and private school, the less the price.
+
+```{r Correllation & Test Signicance, class.source = 'fold-show', echo=FALSE}
 
 # Correlation analysis: pearson for each relationship
 ggcorrplot(
@@ -449,18 +453,18 @@ ggcorrplot(
   colors = c("#25CB10", "white", "#FA7800"),
   type="lower",
   insig = "blank") +  
-  labs(title = "Correlation across numeric variables") 
+  labs(title = "Correlation across numeric variables",caption = "Fig 1") 
 
 #Scatter plots between price and variables
 cleanData %>%
   select(price,"Playground Count in 500m" = pgcount500m, 
          "Total Squrefootage" = TotalFinishedSF,"Distance to Landmark (m)" = landmark_dist,
-         privatesch_nn1)%>%
+         "Distance to the nearest private school" = privat_dist)%>%
 gather(Variable, Value, -price) %>% 
   ggplot(aes(Value, price)) +
   geom_point(size = .5) + geom_smooth(method = "lm", se=F, colour = "#FA7800") +
   facet_wrap(~Variable, ncol = 3, scales = "free") +
-  labs(title = "Price as a function of continuous variables") +
+  labs(title = "Price as a function of continuous variables", caption = "Fig 2") +
   plotTheme()
 
 # This function allows for the plug-in of variables from "studentData".
@@ -481,7 +485,10 @@ summary(testSignificance)
 
 ## K-folds & Multivariate
 
-Describe what we did here.
+K-folds validates the regression model. We divide the data into 100 folds, and run regression over each fold to compare the errors between observed price and the predicted price. 
+
+Table 1. returns the result that tells us if how well each variable performs in the prediction: P-value < 0.05 indicates the variable is siginificant. R-square at the end gives a percentage of how well our model can control the error. 
+
 
 ```{r}
 # This sets up k-fold cross-validation.
@@ -519,13 +526,13 @@ reg1 <- lm(price ~ ., data = train.Data.1 %>%
                            pgcount500m,
                            flood_dist))
 
-stargazer(reg1, type = "html", title = "variation",out="table1.txt",dep.var.labels = "Housing Price")
+stargazer(reg1, type = "html", title = "Table 1. Variation of selected variable and Error Control of the regression model",out="table1.txt",dep.var.labels = "Housing Price")
 
 reg1.tidy <-
   tidy(reg1,
        "Section Number" = section_num)
 
-kable(reg1.tidy, digits = 2, caption = "Regression Model Predicting Variation on Housing Sales Price", 
+kable(reg1.tidy, digits = 2, caption = "Table 2. Regression Model Predicting Variation on Housing Sales Price", 
       col.names = c("Predictor","Estimate","Standard Error", "T-Value","P-Value")
       ) %>%
   kable_styling()
@@ -555,7 +562,8 @@ regression.100foldcv <-
                  Lyon_dummy,
                  pgcount500m,
                  TotalBath,
-                 flood_dist
+                 flood_dist,
+                 privat_dist
           ),
   method = "lm", trControl = fitControl, na.action = na.pass)
 
