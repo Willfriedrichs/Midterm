@@ -83,7 +83,7 @@ varlist_2019 <- load_variables(2019, "acs5", cache = TRUE)
 census_api_key("94efffd19b56ad527e379faea1653ee74dc3de4a",overwrite = TRUE)
 
 tracts19 <- get_acs(geography = "tract",                         
-                    variables = c("B01001_001","B23025_004","B19001_001",
+                    variables = c("B01001_001","B23025_004","B06011_001",
                                   "B06012_002","B02001_002","B25002_003",
                                   "B25013_006","B08013_001","B15012_009"), 
                     year=2019, 
@@ -92,12 +92,12 @@ tracts19 <- get_acs(geography = "tract",
                     output = "wide",
                     geometry=TRUE) %>% 
             st_transform('ESRI:102254') %>%
-            select( c("GEOID","B01001_001E","B23025_004E","B19001_001E",
+            select( c("GEOID","B01001_001E","B23025_004E","B06011_001E",
                       "B06012_002E","B02001_002E","B25002_003E",
                     "B25013_006E","B08013_001E","B15012_009E","geometry") ) %>%
             rename(tot_pop = "B01001_001E",
                    empl_pop = "B23025_004E",
-                   med_inc = "B19001_001E",
+                   med_inc = "B06011_001E",
                    pvty_pop = "B06012_002E",
                    white_pop = "B02001_002E",
                    vac_occ = "B25002_003E",
@@ -259,7 +259,7 @@ landmarksPolygon <- st_union(st_read("Natural_Landmarks.geojson")) %>%
   st_transform('ESRI:102254')
 
 # attach distance to land marks data
-studentData <- mutate(studentData, landmark_dist = st_distance(studentData, landmarksPolygon))
+studentData <- mutate(studentData, landmark_dist = st_distance(studentData, landmarksPolygon), by_element = TRUE)
 
 # Loading Trail Heads Locations
 TrailHead <- 
@@ -360,20 +360,27 @@ Floodplain <-
 
 studentData <-
   studentData %>%
-  mutate(flood_dist = st_distance(studentData, Floodplain))
+  mutate(flood_dist = st_distance(studentData, Floodplain),by_element = TRUE)
 
 
 # This selects all numeric variables as preparation for the
 # correlation analysis that follows.
 #(also delete the outliar)
 
-cleanData <- 
+cleanData <-
   select_if(st_drop_geometry(studentData), is.numeric) %>%
-  select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount, MUSA_ID))%>%
+  select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount))%>%
   slice(-2638)
+
+student.Data.GEOID <-
+  select(studentData,GEOID,MUSA_ID)
+
+cleanData <- 
+  left_join(cleanData,student.Data.GEOID)
 
 cleanData$Ac[(cleanData$Ac)== 0] <- NA
 cleanData$Heating[(cleanData$Heating) == 0] <- NA
+
 ```
 
 # The Model
@@ -397,7 +404,7 @@ train.Data <- filter(cleanData, toPredict == 0) %>%
   na.omit()
 
 inTrain <- createDataPartition(
-  y = paste(train.Data$Heating, train.Data$Ac), 
+  y = paste(train.Data$Heating, train.Data$Ac,train.Data$GEOID), 
   p = .75, list = FALSE)
 train.Data.1 <- train.Data[inTrain,] 
 train.Data.2 <- train.Data[-inTrain,]
@@ -446,7 +453,7 @@ Note that price is strongly correlated with section number, quality code, total 
 
 Fig 2 is a in-depth look of Fig 1 where we evaluate correlation between price and selected variable. Strong positive correlation is seen between price and total square footage. Negative correlation is seen between price and distance away from landmark and private schools, indicating the further away from landmark and private school, the less the price.
 
-```{r Correllation & Test Signicance, class.source = 'fold-show', echo=FALSE}
+```{r Correllation & Test Signicance, echo=FALSE}
 
 # Correlation analysis: pearson for each relationship
 ggcorrplot(
@@ -461,7 +468,7 @@ ggcorrplot(
 cleanData %>%
   select(price,"Playground Count in 500m" = pgcount500m, 
          "Total Squrefootage" = TotalFinishedSF,"Distance to Landmark (m)" = landmark_dist,
-         "Distance to the nearest private school" = privat_dist)%>%
+         "Distance to the nearest private school" = privatesch_nn1)%>%
 gather(Variable, Value, -price) %>% 
   ggplot(aes(Value, price)) +
   geom_point(size = .5) + geom_smooth(method = "lm", se=F, colour = "#FA7800") +
@@ -490,10 +497,10 @@ summary(testSignificance)
 
 K-folds validates the regression model. We divide the data into 100 folds, and run regression over each fold to compare the errors between observed price and the predicted price. 
 
-Table 1. returns the result that tells us if how well each variable performs in the prediction: P-value < 0.05 indicates the variable is significant. R-square at the end gives a percentage of how well our model can control the error. 
+Table 2. returns the result that tells us if how well each variable performs in the prediction: P-value < 0.05 indicates the variable is significant. R-square at the end gives a percentage of how well our model can control the error. 
 
 
-```{r}
+```{r, message=FALSE,echo=FALSE,warning=FALSE}
 # This sets up k-fold cross-validation.
 k = 100
 fitControl <- trainControl(method = "cv", number = k)
@@ -529,7 +536,7 @@ reg1 <- lm(price ~ ., data = train.Data.1 %>%
                            pgcount500m,
                            flood_dist))
 
-stargazer(reg1, type = "html", title = "Table 1. Variation of selected variable and Error Control of the regression model",out="table1.txt",dep.var.labels = "Housing Price")
+stargazer(reg1, type = "html", title = "Table 2. Variation of selected variable and Error Control of the regression model",out="table1.html",dep.var.labels = "Housing Price")
 
 reg1.tidy <-
   tidy(reg1,
@@ -610,7 +617,8 @@ train.Data.2 <-
          
 train.Data.2 <-
   train.Data.2 %>%
-        mutate(SalePrice.Error = SalePrice.Predict - price,
+        mutate(Regression = "Baseline Regression",
+          SalePrice.Error = SalePrice.Predict - price,
          SalePrice.AbsError = abs(SalePrice.Predict - price),
         SalePrice.APE = (abs(SalePrice.Predict - price)) / SalePrice.Predict)
 
@@ -737,7 +745,7 @@ test.Data.sf <-
 
 merge.predicted <-
   train.Data.2 %>%
-  select(-SalePrice.Error,-SalePrice.AbsError, -SalePrice.APE)
+  select(-SalePrice.Error,-SalePrice.AbsError, -SalePrice.APE,-Regression)
 
 merge.predicted <-
   rbind(merge.predicted,test.Data.sf)
@@ -753,53 +761,6 @@ ggplot()+
        subtitle = "Bouolder, Colorado ($)",
        caption = "Fig.2")+
   mapTheme()
-
-#Adding Neighborhood Layer
-
-boulder.nb <-
-st_read("Boulder Neighborhoods.kml")%>%
-  st_transform('ESRI:102254')%>%
-  select(Name,geometry)
-
-#Calculate AbsError and MAPE by neighborhoods
-neighborhood_with_error <-
-  st_join(boulder.nb,train.Data.2)
-
-neighborhood_with_error <-
-  neighborhood_with_error %>%
-  group_by(Name)%>%
-  summarize("Mean.absE" = mean(SalePrice.AbsError, na.rm = T),
-            "MAPE" = mean(SalePrice.APE, na.rm = T))%>%
-  mutate(MAPE.Pct = MAPE*100)
-
-#Map of AbsError and Neighborhoods
-ggplot()+
-  geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
-  geom_sf(data = neighborhood_with_error, aes(fill = MAPE.Pct),colour = "white")+
-    scale_fill_gradient2(
-      low = "red",
-      mid = "white",
-      high = "blue",
-      midpoint = 0,
-      space = "Lab",
-      na.value = "grey50",
-      guide = "colourbar",
-      aesthetics = "fill",
-    name = "Absolute Percentage Error" ) +
-  mapTheme()
-
-#Municipality with Error
-muni_with_error <-
-  st_join(BoulderMuni_Boundary,train.Data.2)%>%
-  select(price,Municipality.x,SalePrice.APE,SalePrice.AbsError)
-
-muni_with_error <-
-  muni_with_error %>%
-  group_by(Municipality.x)%>%
-  summarize("Mean.absE" = mean(SalePrice.AbsError, na.rm = T),
-            "MAPE" = mean(SalePrice.APE, na.rm = T),
-            "Mean.price" = mean(price), na.rm = T)%>%
-  mutate(MAPE.Pct = MAPE*100)
 
 #Census Track with Error
 tracts_with_error <-
@@ -837,19 +798,122 @@ ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
 
 ```
 
-#Looking at Boulder by Income
+#Incorporating neighborhood effects -- Median Income
 
-```{r Income Split in Boulder County}
+In this section, we evaluate weather spacial processes actually counts for the housing prices in boulder. Majority of the population in Boulder County is White, so race is not a pointless context to reflect neighborhood effect. Median Income level is chosen, and we assign tracts that have income greater than the mean income of the county ($40,450) as high income areas. 
 
-Income_less_med <-
-  filter(cleanData, med_inc < 45000)
+The result shows neighborhood effect (median income) in fact counts very little in determining housing price across different census tracts in Boulder County. 
 
-Income_more_med <-
-  filter(clean, med_inc >= 45000)
+
+```{r Baseline regression and neighborhood effects}
+#Build regression, including census tracts as a variable (GEOID), on the training data
+train.Data.1 <-
+  left_join(train.Data.1, studentData)%>%
+  st_as_sf()
+            
+reg.nhood <- lm(price ~ ., data = as.data.frame(train.Data.1) %>% 
+                                select(GEOID, price, 
+                 section_num,
+                 qualityCode,
+                 TotalFinishedSF,
+                 Ac,
+                 Heating,
+                 Age,
+                 med_inc,
+                 landmark_dist,
+                 nbrRoomsNobath,
+                 pvty_pop,
+                 privat_dist,
+                 head_nn5,
+                 park_nn1,
+                 Loui_dummy,
+                 Nede_dummy,
+                 Boul_dummy,
+                 Erie_dummy,
+                 Long_dummy,
+                 Lyon_dummy,
+                 pgcount500m,
+                 TotalBath,
+                 flood_dist,
+                 privat_dist))
+
+
+boulder.test.nhood <-
+  train.Data.2 %>%
+  mutate(Regression = "Neighborhood Effects",
+         SalePrice.Predict = predict(reg.nhood, train.Data.2),
+         SalePrice.Error = SalePrice.Predict - price,
+         SalePrice.AbsError = abs(SalePrice.Predict- price),
+         SalePrice.APE = (abs(SalePrice.Predict- price)) / price)
+
+bothRegressions <- 
+  rbind(
+   select(train.Data.2, starts_with("SalePrice"), price, Regression, GEOID) %>%
+      mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error)),
+   select(boulder.test.nhood, starts_with("SalePrice"), price,Regression, GEOID) %>%
+      mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error)))    
+
+
+st_drop_geometry(bothRegressions) %>%
+  gather(Variable, Value, -Regression, -GEOID) %>%
+  filter(Variable == "SalePrice.AbsError" | Variable == "SalePrice.APE") %>%
+  group_by(Regression, Variable) %>%
+    summarize(meanValue = mean(Value, na.rm = T)) %>%
+    spread(Variable, meanValue) %>%
+    kable()%>% kable_styling()
+
+st_drop_geometry(bothRegressions) %>%
+ select(SalePrice.Predict, price, Regression) %>%
+    ggplot(aes(price, SalePrice.Predict)) +
+  geom_point() +
+  stat_smooth(aes(price, price), 
+             method = "lm", se = FALSE, size = 1, colour="#FA7800") + 
+  stat_smooth(aes(SalePrice.Predict, price), 
+              method = "lm", se = FALSE, size = 1, colour="#25CB10") +
+  facet_wrap(~Regression) +
+  labs(title="Predicted sale price as a function of observed price",
+       subtitle="Orange line represents a perfect prediction; Green line represents prediction",
+       y = "Predicted Sale Price", x = "Neighborhood Effects") +
+  plotTheme()
 ```
-#Variables used as predictors
+Absolute error on neighborhood effect is actually larger than the baseline regression, indicating census tracts might not be an important determination for housing prices.
 
-```{r Summary Statistics of Predictors used in the model,echo=FALSE}
+```{r Adding income context}
+#Add race and income context
+tracts19.2 <-
+  tracts19%>%
+  select(med_inc,tot_pop,white_pop,GEOID,geometry) %>%
+  mutate(percentWhite = white_pop / tot_pop,
+        raceContext = ifelse(percentWhite > .5, "Majority White", "Majority Non-White"),
+         incomeContext = ifelse(med_inc > 40450, "High Income", "Low Income"))
+
+#Plot income and race context
+grid.arrange(ncol = 2,
+  ggplot() + geom_sf(data = na.omit(tracts19.2), aes(fill = raceContext)) +
+    scale_fill_manual(values = c("#25CB10", "#FA7800"), name="Race Context") +
+    labs(title = "Race Context") +
+    mapTheme() + theme(legend.position="bottom"), 
+  ggplot() + geom_sf(data = na.omit(tracts19.2), aes(fill = incomeContext)) +
+    scale_fill_manual(values = c("#25CB10", "#FA7800"), name="Income Context") +
+    labs(title = "Income Context") +
+    mapTheme() + theme(legend.position="bottom"))
+```
+We see that majority of Boulder's population is White (>50% in a census tract), and is not very much related to income in the county. 
+
+```{r Test on Income Context}
+st_join(bothRegressions, tracts19.2) %>% 
+  group_by(Regression, incomeContext) %>%
+  summarize(mean.MAPE = scales::percent(mean(SalePrice.APE, na.rm = T)))  %>%
+   st_drop_geometry() %>%
+  spread(incomeContext, mean.MAPE) %>%
+  kable(caption = "Table 4. Test set MAPE by neighborhood income context")%>%kable_styling()
+```
+Table 4 shows that regression considering census median income level is less reliable than the baseline regression: this geographic feature creates more errors when added to the model. The results shows census median income level is not a stong determining factor of housing prices in Boulder county, and therefore, cannot be generalized. 
+
+#Appendix: Variables used as predictors
+
+```{r Summary Statistics of Some Predictors used in the model,echo=FALSE}
+
 InterCh.va <-
   studentData %>%
   select("Section.Num" = section_num,
@@ -872,15 +936,14 @@ SpacialStruct.va <-
          
 Amen.va <-
   studentData %>%
-  select("LandMark.Dist" = landmark_dist,
-         "Private.Dist" = privat_dist,
+  select("Private.Dist" = privatesch_nn1,
          "Trailhead.Dist" = head_nn5,
          "Park.Dist" = park_nn1,
          "PGCount.500m" = pgcount500m,
-         "Flood.Dist" = flood_dist)%>%
+        )%>%
   st_drop_geometry()
 
-stargazer(InterCh.va, type = "text", title = "Statistic Summary: Internal Characteristic Variables",
+stargazer(InterCh.va, type = "html", out = "inter.html", title = "Statistic Summary: Internal Characteristic Variables",
           digits = 0, 
           notes = c("Section.Num: Building section number by uses",
           "Quality.Code: Quality as determined by our appraisal staff",
@@ -891,7 +954,7 @@ stargazer(InterCh.va, type = "text", title = "Statistic Summary: Internal Charac
           "Total.Bath: Number of Bathrooms",
           "Rooms.No.Bath: Number of Rooms that are not bathrooms"))
 
-stargazer(Amen.va, type = "text", title = "Statistic Summary: Amenities",
+stargazer(Amen.va, type = "html","out=amen.html", title = "Statistic Summary: Amenities",
           digits = 0,
           notes = c("Unit: Meters Source: Boulder County Open Data Portal",
             "LandMark.Dist: Distance to the nearest landmark",
@@ -901,7 +964,7 @@ stargazer(Amen.va, type = "text", title = "Statistic Summary: Amenities",
          "PGCount.500: Playground count in 500m radius of a sold house",
          "Flood.Dist: Distance to the nearest Floodplain"))
 
-stargazer(SpacialStruct.va, type = "text", title = "Statistic Summary: Spacial Structure",
+stargazer(SpacialStruct.va, type = "html", out = "specstruc.html",title = "Statistic Summary: Spacial Structure",
           digits = 0, 
           notes = c("Source: One-year American Community Survey",
           "Data collected by census tracts",
@@ -916,3 +979,4 @@ stargazer(SpacialStruct.va, type = "text", title = "Statistic Summary: Spacial S
          "Erie\\_dummy,Lafa\\_dummy,Long\\_dummy,",
          "representing Louisvelle, Ward, Jamestown, Nederland, Boulder, Erie,", 
          "Lafayette, and Longmont, respectively"))
+```

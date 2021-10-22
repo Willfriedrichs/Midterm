@@ -683,12 +683,7 @@ tracts_with_error <-
 ggplot()+
   geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
   geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = "white")+
-  scale_colour_gradient(
-    low = "indianred1",
-    high = "indianred4",
-    space = "Lab",
-    na.value = "grey50",
-    name = "Absolute Percentage Error" ) +
+  scale_colour_gradient( ) +
   mapTheme()
 
 #scatterplot plot of MAPE by neighborhood as a function of mean price by neighborhood.
