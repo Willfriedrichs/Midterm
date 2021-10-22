@@ -72,6 +72,8 @@ qbr <- function(df, variable, rnd) {
 palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
 ```
 
+
+
 The data gathering process begins by accessing tract-level geography, population, and demographic data from the US Government Census API. The data uses American Community Survey results for 2019. Variables of interest are isolated and wrangled to create features required for the analysis.
 
 
@@ -90,12 +92,12 @@ tracts19 <- get_acs(geography = "tract",
                     output = "wide",
                     geometry=TRUE) %>% 
             st_transform('ESRI:102254') %>%
-            select( c("GEOID","B01001_001E","B23025_004E","B06011_001E",
+            select( c("GEOID","B01001_001E","B23025_004E","B19001_001E",
                       "B06012_002E","B02001_002E","B25002_003E",
-                      "B25013_006E","B08013_001E","B15012_009E","geometry") ) %>%
+                    "B25013_006E","B08013_001E","B15012_009E","geometry") ) %>%
             rename(tot_pop = "B01001_001E",
                    empl_pop = "B23025_004E",
-                   med_inc = "B19001_001",
+                   med_inc = "B19001_001E",
                    pvty_pop = "B06012_002E",
                    white_pop = "B02001_002E",
                    vac_occ = "B25002_003E",
@@ -104,7 +106,9 @@ tracts19 <- get_acs(geography = "tract",
                    sci_bach = "B15012_009E") %>%
             mutate(area = as.numeric(st_area(geometry)/1000000))%>%
             mutate(pop_den = tot_pop/area)
+
 ```
+
 
 
 ## Project Data
@@ -400,9 +404,11 @@ train.Data.2 <- train.Data[-inTrain,]
 
 # This function here attempts to fit a linear model to
 # the relationship between "testData" variables.
-ggplot(data = train.Data, aes(Heating, price)) +
+ggplot(data = train.Data, aes(head_nn5, price)) +
        geom_point(size = .5) + 
-       geom_smooth(method = "lm")
+       geom_smooth(method = "lm")+
+  labs(title = "Correlation between Housing Sale Price and the Average Distance to the Nearest Five Trail Heads", x = "Distance (m)", y = "Sale Price ($)",caption = "Fig. 1")+
+  plotTheme()
 
 #Dataframe with variables of interest
 train.Data.clean <-
@@ -470,7 +476,8 @@ testSignificance <- lm(price ~ ., data = train.Data %>%
                                   TotalFinishedSF,
                                   mainfloorSF,
                                   Age,
-                                  pop_den
+                                  pop_den,
+                                  med_inc
                                   ))
 
 # This gives us our r-squared value, which measures fit to the training data.
@@ -483,7 +490,7 @@ summary(testSignificance)
 
 K-folds validates the regression model. We divide the data into 100 folds, and run regression over each fold to compare the errors between observed price and the predicted price. 
 
-Table 1. returns the result that tells us if how well each variable performs in the prediction: P-value < 0.05 indicates the variable is siginificant. R-square at the end gives a percentage of how well our model can control the error. 
+Table 1. returns the result that tells us if how well each variable performs in the prediction: P-value < 0.05 indicates the variable is significant. R-square at the end gives a percentage of how well our model can control the error. 
 
 
 ```{r}
@@ -576,7 +583,6 @@ regression.100foldcv
 Describe what we did here.
 
 ```{r MAE Histogram}
-#################
 #MAE Histogram
 #This allows you to see the distribution of MAE of the folds
 
@@ -586,6 +592,7 @@ ggplot(regression.100foldcv$resample, aes(x=MAE))+
        subtitle = "k-fold cross-validation; k = 100",
        caption = "Figure 2")+
   theme_apa()
+
 ```
 
 
@@ -630,18 +637,35 @@ kable(MeanAb.table, digit = 2,
 Describe what we did here.
 
 ```{r Plot Predictions}
-#Plot of predicted prices as a function of obersved price
+#Plot of predicted prices as a function of observed price
 ggplot(data = train.Data.2, aes(price,SalePrice.Predict)) +
   geom_point(size = .85,colour = "orange") + 
   geom_smooth(method = "lm",colour = "red",size = 1.2)+
   labs(x = "Obeserved Prices",y = "Predicted Prices", title = "Predicted Prices as a Function of Observed Prices",
-       subtitle = "Boulder County, CO (all in $)")+
+       subtitle = "Boulder County, CO (all in $)", 
+       caption = "Fig 3")+
   theme(plot.title = element_text(size = 20),
         plot.subtitle = element_text(size = 15),
         axis.title.x = element_text(size = 15),
         axis.title.y = element_text(size = 15),
         axis.line = element_line(colour = "grey50", size = 1),
         panel.grid.major = element_line(linetype = "dotted",size = 1))
+
+#Map of residuals
+#This allows you to see the degree of error across over Boulder County
+
+train.Data.2 <-
+  left_join(train.Data.2, studentData)%>%
+  st_as_sf()
+
+ggplot()+
+  geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
+  geom_sf(data = tracts19,colour = "Black") +
+  geom_sf(data = train.Data.2, aes(colour = SalePrice.AbsError),size=.90)+
+  scale_colour_gradient(low = "#00cfbb", high = "#6f5ad3",
+    name = "Absolute Error ($)" ) +
+  labs(title = "Absolute Errors between Observed and Predicted Housing Price")+
+  mapTheme()
 
 ```
 
@@ -652,10 +676,6 @@ Describe what we did here.
 ```{r Lag Price Errors}
 ##################
 #Lag Price Errors
-
-train.Data.2 <-
-  left_join(train.Data.2,studentData)%>%
-  st_as_sf()
 
 coords.test <-  st_coordinates(train.Data.2) 
 neighborList.test <- knn2nb(knearneigh(coords.test, 5))
@@ -796,16 +816,8 @@ tracts_with_error <-
 
 ggplot()+
   geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
-  geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = "white")+
-  scale_fill_gradient2(
-    low = "red",
-    mid = "white",
-    high = "blue",
-    midpoint = 0,
-    space = "Lab",
-    na.value = "grey50",
-    guide = "colourbar",
-    aesthetics = "fill",
+  geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = "black")+
+  scale_fill_gradient(low = "white", high = "brown",
     name = "Absolute Percentage Error" ) +
   mapTheme()
 
@@ -825,3 +837,82 @@ ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
 
 ```
 
+#Looking at Boulder by Income
+
+```{r Income Split in Boulder County}
+
+Income_less_med <-
+  filter(cleanData, med_inc < 45000)
+
+Income_more_med <-
+  filter(clean, med_inc >= 45000)
+```
+#Variables used as predictors
+
+```{r Summary Statistics of Predictors used in the model,echo=FALSE}
+InterCh.va <-
+  studentData %>%
+  select("Section.Num" = section_num,
+         "Quality.Code" = qualityCode,
+         TotalFinishedSF,
+         Age,
+         Ac,
+         Heating,
+         "Total.Bath" = TotalBath,
+         "Rooms.No.bath" = nbrRoomsNobath)%>%
+  st_drop_geometry()
+
+SpacialStruct.va <-
+  studentData %>%
+  select("Med.Income" = med_inc,
+         "White.Pop" = white_pop,
+         "Pop.Den" = pop_den,
+         "Pvty.Pop" = pvty_pop) %>%
+  st_drop_geometry()
+         
+Amen.va <-
+  studentData %>%
+  select("LandMark.Dist" = landmark_dist,
+         "Private.Dist" = privat_dist,
+         "Trailhead.Dist" = head_nn5,
+         "Park.Dist" = park_nn1,
+         "PGCount.500m" = pgcount500m,
+         "Flood.Dist" = flood_dist)%>%
+  st_drop_geometry()
+
+stargazer(InterCh.va, type = "text", title = "Statistic Summary: Internal Characteristic Variables",
+          digits = 0, 
+          notes = c("Section.Num: Building section number by uses",
+          "Quality.Code: Quality as determined by our appraisal staff",
+          "TotalFinishedSF: Total number of finished square feet",
+          "Age: Age of the structure",
+          "Ac: Air Conditioner Type (Lower N value due to absence of AC units)",
+          "Heating: Heating System Type (Lower N value due to absence of Heating units)",
+          "Total.Bath: Number of Bathrooms",
+          "Rooms.No.Bath: Number of Rooms that are not bathrooms"))
+
+stargazer(Amen.va, type = "text", title = "Statistic Summary: Amenities",
+          digits = 0,
+          notes = c("Unit: Meters Source: Boulder County Open Data Portal",
+            "LandMark.Dist: Distance to the nearest landmark",
+         "Private.Dist: Distance to the nearest private school",
+         "Trailhead.Dist: Distance to the nearest trail head",
+         "Park.Dist: Distance to the nearest park",
+         "PGCount.500: Playground count in 500m radius of a sold house",
+         "Flood.Dist: Distance to the nearest Floodplain"))
+
+stargazer(SpacialStruct.va, type = "text", title = "Statistic Summary: Spacial Structure",
+          digits = 0, 
+          notes = c("Source: One-year American Community Survey",
+          "Data collected by census tracts",
+          "Med.Income: Medium Family Income",
+         "White.Pop: Population identified as 'white'",
+         "Pop.Den: Population density by census tract",
+         "Pvty.Pop: Population living in poverty",
+         "Some variables are catagorical. In these variables below",
+         "'1' indicates the sold house exists within the municipality,",
+         "0 means non-exsiting:",
+         "Loui\\_dummy, Ward\\_dummy, Jame\\_dummy, Nede\\_dummy,Boul\\_dummy",
+         "Erie\\_dummy,Lafa\\_dummy,Long\\_dummy,",
+         "representing Louisvelle, Ward, Jamestown, Nederland, Boulder, Erie,", 
+         "Lafayette, and Longmont, respectively"))
