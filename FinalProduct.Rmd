@@ -820,7 +820,11 @@ ggplot()+
       aesthetics = "fill",
     name = "Absolute Percentage Error" ) +
   mapTheme()
+```
 
+Within the City of Boulder itself, the greatest error was associated with the central tracts
+
+```{r Muni With Error}
 #Municipality with Error
 muni_with_error <-
   st_join(BoulderMuni_Boundary,train.Data.2)%>%
@@ -880,72 +884,81 @@ Income_less_med <-
 Income_more_med <-
   filter(cleanData, med_inc >= 45000)
 ```
-#Variables used as predictors
-# 
-# ```{r Summary Statistics of Predictors used in the model,echo=FALSE}
-# InterCh.va <-
-#   studentData %>%
-#   select("Section.Num" = section_num,
-#          "Quality.Code" = qualityCode,
-#          TotalFinishedSF,
-#          Age,
-#          Ac,
-#          Heating,
-#          "Total.Bath" = TotalBath,
-#          "Rooms.No.bath" = nbrRoomsNobath)%>%
-#   st_drop_geometry()
-# 
-# SpacialStruct.va <-
-#   studentData %>%
-#   select("Med.Income" = med_inc,
-#          "White.Pop" = white_pop,
-#          "Pop.Den" = pop_den,
-#          "Pvty.Pop" = pvty_pop) %>%
-#   st_drop_geometry()
-#          
-# Amen.va <-
-#   studentData %>%
-#   select("LandMark.Dist" = landmark_dist,
-#          "Private.Dist" = privat_dist,
-#          "Trailhead.Dist" = head_nn5,
-#          "Park.Dist" = park_nn1,
-#          "PGCount.500m" = pgcount500m,
-#          "Flood.Dist" = flood_dist)%>%
-#   st_drop_geometry()
-# 
-# stargazer(InterCh.va, type = "text", title = "Statistic Summary: Internal Characteristic Variables",
-#           digits = 0, 
-#           notes = c("Section.Num: Building section number by uses",
-#           "Quality.Code: Quality as determined by our appraisal staff",
-#           "TotalFinishedSF: Total number of finished square feet",
-#           "Age: Age of the structure",
-#           "Ac: Air Conditioner Type (Lower N value due to absence of AC units)",
-#           "Heating: Heating System Type (Lower N value due to absence of Heating units)",
-#           "Total.Bath: Number of Bathrooms",
-#           "Rooms.No.Bath: Number of Rooms that are not bathrooms"))
-# 
-# stargazer(Amen.va, type = "text", title = "Statistic Summary: Amenities",
-#           digits = 0,
-#           notes = c("Unit: Meters Source: Boulder County Open Data Portal",
-#             "LandMark.Dist: Distance to the nearest landmark",
-#          "Private.Dist: Distance to the nearest private school",
-#          "Trailhead.Dist: Distance to the nearest trail head",
-#          "Park.Dist: Distance to the nearest park",
-#          "PGCount.500: Playground count in 500m radius of a sold house",
-#          "Flood.Dist: Distance to the nearest Floodplain"))
-# 
-# stargazer(SpacialStruct.va, type = "text", title = "Statistic Summary: Spacial Structure",
-#           digits = 0, 
-#           notes = c("Source: One-year American Community Survey",
-#           "Data collected by census tracts",
-#           "Med.Income: Medium Family Income",
-#          "White.Pop: Population identified as 'white'",
-#          "Pop.Den: Population density by census tract",
-#          "Pvty.Pop: Population living in poverty",
-#          "Some variables are catagorical. In these variables below",
-#          "'1' indicates the sold house exists within the municipality,",
-#          "0 means non-exsiting:",
-#          "Loui\\_dummy, Ward\\_dummy, Jame\\_dummy, Nede\\_dummy,Boul\\_dummy",
-#          "Erie\\_dummy,Lafa\\_dummy,Long\\_dummy,",
-#          "representing Louisvelle, Ward, Jamestown, Nederland, Boulder, Erie,", 
-#          "Lafayette, and Longmont, respectively"))
+
+
+# Conclusion
+
+Realistically and putting aside the role of “eager data science team competing to work with a major corporation,” while the basic structure of the model is sound, there significant issues with the model’s performance. An MAPE of around 30% is severe in the context of predicting real estate prices, and would often mean a six figure window of uncertainty. However, it was interesting to take part in the process of building a model that is structurally similar to the way a model in the real world would be constructed. 
+Geographically, Boulder City had highest concentration of errors. Higher density development or the unique real estate environment created by a large University’s presence may have caused the relationships between the variables and housing prices to deviate from the previously established patterns on which the model had based its predictions. The rest of the municipalities generally had more accurate predictions.
+The model we created was certainly improved by the addition of geographic features. While many variables from the given dataset were also central to the model’s predictions, variables such as distance to the nearest park and the mean distance to the five closest trailheads performed well. 
+
+Variables used as predictors
+
+```{r Summary Statistics of Predictors used in the model,echo=FALSE}
+ InterCh.va <-
+   studentData %>%
+   select("Section.Num" = section_num,
+          "Quality.Code" = qualityCode,
+          TotalFinishedSF,
+          Age,
+          Ac,
+          Heating,
+          "Total.Bath" = TotalBath,
+          "Rooms.No.bath" = nbrRoomsNobath)%>%
+   st_drop_geometry()
+
+ SpacialStruct.va <-
+   studentData %>%
+   select("Med.Income" = med_inc,
+          "White.Pop" = white_pop,
+          "Pop.Den" = pop_den,
+          "Pvty.Pop" = pvty_pop) %>%
+   st_drop_geometry()
+
+ Amen.va <-
+   studentData %>%
+   select("LandMark.Dist" = landmark_dist,
+          "Private.Dist" = privat_dist,
+          "Trailhead.Dist" = head_nn5,
+          "Park.Dist" = park_nn1,
+          "PGCount.500m" = pgcount500m,
+          "Flood.Dist" = flood_dist)%>%
+   st_drop_geometry()
+
+ stargazer(InterCh.va, type = "text", title = "Statistic Summary: Internal Characteristic Variables",
+           digits = 0,
+           notes = c("Section.Num: Building section number by uses",
+           "Quality.Code: Quality as determined by our appraisal staff",
+           "TotalFinishedSF: Total number of finished square feet",
+           "Age: Age of the structure",
+           "Ac: Air Conditioner Type (Lower N value due to absence of AC units)",
+           "Heating: Heating System Type (Lower N value due to absence of Heating units)",
+           "Total.Bath: Number of Bathrooms",
+           "Rooms.No.Bath: Number of Rooms that are not bathrooms"))
+
+ stargazer(Amen.va, type = "text", title = "Statistic Summary: Amenities",
+           digits = 0,
+           notes = c("Unit: Meters Source: Boulder County Open Data Portal",
+             "LandMark.Dist: Distance to the nearest landmark",
+          "Private.Dist: Distance to the nearest private school",
+          "Trailhead.Dist: Distance to the nearest trail head",
+          "Park.Dist: Distance to the nearest park",
+          "PGCount.500: Playground count in 500m radius of a sold house",
+          "Flood.Dist: Distance to the nearest Floodplain"))
+
+ stargazer(SpacialStruct.va, type = "text", title = "Statistic Summary: Spacial Structure",
+           digits = 0,
+           notes = c("Source: One-year American Community Survey",
+           "Data collected by census tracts",
+           "Med.Income: Medium Family Income",
+          "White.Pop: Population identified as 'white'",
+          "Pop.Den: Population density by census tract",
+          "Pvty.Pop: Population living in poverty",
+          "Some variables are catagorical. In these variables below",
+          "'1' indicates the sold house exists within the municipality,",
+          "0 means non-exsiting:",
+          "Loui\\_dummy, Ward\\_dummy, Jame\\_dummy, Nede\\_dummy,Boul\\_dummy",
+          "Erie\\_dummy,Lafa\\_dummy,Long\\_dummy,",
+          "representing Louisvelle, Ward, Jamestown, Nederland, Boulder, Erie,",
+          "Lafayette, and Longmont, respectively"))
+```
