@@ -382,6 +382,21 @@ cleanData$Ac[(cleanData$Ac)== 0] <- NA
 cleanData$Heating[(cleanData$Heating) == 0] <- NA
 
 ```
+```{r Maps of indepdent variables}
+
+#Parks
+ggplot()+
+  geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
+  geom_sf(data = tracts19, colour = "black")+
+  geom_sf(data = Park, colour = alpha("purple",0.5)) +
+  geom_sf(data = studentData, aes(colour = q5(price)),size=.85)+
+  scale_colour_manual(values = palette5,
+                      labels=qbr(studentData,"price"),
+                      name = "Sale Price") +
+  labs(title = "Park Locations (in purple) in Boulder County")+
+  mapTheme()
+
+````
 
 # The Model
 
