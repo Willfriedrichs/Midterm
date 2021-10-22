@@ -1,57 +1,57 @@
 
-Table 1. Variation of selected variable and Error Control of the regression model
+Table 2. Variation of selected variable and Error Control of the regression model
 ===============================================
                         Dependent variable:    
                     ---------------------------
                            Housing Price       
 -----------------------------------------------
-section_num               411,065.900***       
-                           (86,284.320)        
+section_num                                    
                                                
-qualityCode                24,310.930***       
-                             (964.232)         
                                                
-TotalFinishedSF             165.052***         
-                              (9.595)          
+qualityCode                52,137.040***       
+                            (4,822.743)        
                                                
-Age                        3,272.999***        
-                             (301.786)         
+TotalFinishedSF             251.012***         
+                             (45.140)          
                                                
-Ac                        -14,615.530***       
-                            (3,574.486)        
+Age                        3,677.320***        
+                            (1,238.914)        
                                                
-Heating                    3,793.879***        
-                             (533.990)         
+Ac                          10,623.860         
+                           (10,511.860)        
                                                
-med_inc                       -0.586           
-                              (0.803)          
+Heating                      2,543.157         
+                            (1,623.156)        
                                                
-nbrRoomsNobath              -3,080.839         
-                            (3,382.464)        
+med_inc                       163.653          
+                             (103.164)         
                                                
-landmark_dist               -14.040***         
-                              (4.528)          
+nbrRoomsNobath              -11,325.190        
+                           (16,316.120)        
                                                
-white_pop                    -7.666**          
-                              (3.549)          
+landmark_dist               -169.728***        
+                             (39.450)          
                                                
-pop_den                        5.892           
-                              (7.600)          
+white_pop                   -125.488**         
+                             (50.972)          
                                                
-pvty_pop                      -13.212          
-                             (20.420)          
+pop_den                      90.354***         
+                             (28.751)          
                                                
-privat_dist                    0.537           
-                              (0.642)          
+pvty_pop                    -173.294***        
+                             (49.877)          
                                                
-head_nn5                    -15.888***         
-                              (6.131)          
+privat_dist                    2.373           
+                              (2.746)          
                                                
-park_nn1                     30.473***         
-                              (4.998)          
+head_nn5                      -70.473          
+                             (58.811)          
                                                
-Loui_dummy                173,768.500***       
-                           (25,933.530)        
+park_nn1                    309.865***         
+                             (57.263)          
+                                               
+Loui_dummy                                     
+                                               
                                                
 Ward_dummy                                     
                                                
@@ -59,38 +59,38 @@ Ward_dummy
 Jame_dummy                                     
                                                
                                                
-Nede_dummy                 293,546.900*        
-                           (159,679.900)       
+Nede_dummy                                     
                                                
-Boul_dummy                399,598.500***       
-                           (25,178.550)        
                                                
-Erie_dummy                -104,361.100***      
-                           (31,051.180)        
+Boul_dummy                -596,929.500***      
+                           (145,127.700)       
                                                
-Lafa_dummy                110,988.000***       
-                           (27,475.600)        
+Erie_dummy                                     
                                                
-Long_dummy                -134,922.900***      
-                           (19,946.170)        
                                                
-TotalBath                  48,072.420***       
-                            (7,093.609)        
+Lafa_dummy                                     
                                                
-pgcount500m                  7,000.920         
-                           (13,661.430)        
                                                
-flood_dist                  -33.859***         
-                              (4.531)          
+Long_dummy                                     
                                                
-Constant                   -977,942.600        
-                           (815,329.800)       
+                                               
+TotalBath                 128,351.100***       
+                           (30,389.530)        
+                                               
+pgcount500m                -70,442.350*        
+                           (40,472.120)        
+                                               
+flood_dist                  -94.360***         
+                             (27.719)          
+                                               
+Constant                 -5,750,630.000**      
+                          (2,392,149.000)      
                                                
 -----------------------------------------------
-Observations                   5,654           
-R2                             0.614           
-Adjusted R2                    0.613           
-Residual Std. Error   348,170.200 (df = 5629)  
-F Statistic         373.556*** (df = 24; 5629) 
+Observations                    540            
+R2                             0.651           
+Adjusted R2                    0.639           
+Residual Std. Error   490,298.700 (df = 521)   
+F Statistic          54.050*** (df = 18; 521)  
 ===============================================
 Note:               *p<0.1; **p<0.05; ***p<0.01
