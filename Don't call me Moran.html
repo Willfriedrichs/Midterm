@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)http://127.0.0.1:3289/FinalProduct.Rmd -->
+<html class=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <script type="application/shiny-singletons"></script>
+  <script type="application/html-dependencies">jquery[3.6.0];shiny-css[1.7.1];shiny-javascript[1.7.1]</script>
+<script src="./Don&#39;t call me Moran_files/jquery.min.js.download"></script>
+<link href="./Don&#39;t call me Moran_files/shiny.min.css" rel="stylesheet">
+<script src="./Don&#39;t call me Moran_files/shiny.min.js.download"></script>  <script src="./Don&#39;t call me Moran_files/rmd_loader.js.download"></script>
+  <link href="./Don&#39;t call me Moran_files/rmd_loader.css" rel="stylesheet">
+<script src="./Don&#39;t call me Moran_files/header-attrs.js.download"></script><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" href="./Don&#39;t call me Moran_files/bootstrap.min.css"><script src="./Don&#39;t call me Moran_files/bootstrap.min.js.download"></script><script src="./Don&#39;t call me Moran_files/html5shiv.min.js.download"></script><script src="./Don&#39;t call me Moran_files/respond.min.js.download"></script><style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style><script src="./Don&#39;t call me Moran_files/jquery-ui.min.js.download"></script><link rel="stylesheet" type="text/css" href="./Don&#39;t call me Moran_files/jquery.tocify.css"><script src="./Don&#39;t call me Moran_files/jquery.tocify.js.download"></script><script src="./Don&#39;t call me Moran_files/tabsets.js.download"></script><script src="./Don&#39;t call me Moran_files/codefolding.js.download"></script><link rel="stylesheet" type="text/css" href="./Don&#39;t call me Moran_files/default.css"><script src="./Don&#39;t call me Moran_files/highlight.js.download"></script><script src="./Don&#39;t call me Moran_files/kePrint.js.download"></script><link rel="stylesheet" type="text/css" href="./Don&#39;t call me Moran_files/lightable.css"><link rel="stylesheet" type="text/css" href="./Don&#39;t call me Moran_files/rmd_perf.css"><script src="./Don&#39;t call me Moran_files/rmd_perf.js.download"></script><meta name="rstudio_origin" content="127.0.0.1:26953"><script src="./Don&#39;t call me Moran_files/rsiframe.js.download"></script>
+
+
+<meta name="generator" content="pandoc">
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+
+
+<meta name="author" content="Yihong Hu, Sabir Nazarov, Will Friedrichs">
+
+<meta name="date" content="2021-10-20">
+
+<title>Midterm Project</title>
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type="text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#section-TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#section-TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+<script type="text/javascript" src="./Don&#39;t call me Moran_files/MathJax.js.download"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover, .MJXp-munder {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > *, .MJXp-munder > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+<body data-new-gr-c-s-check-loaded="14.1035.0" data-gr-ext-installed=""><div id="MathJax_Message" style="display: none;"></div>
+  <div>
+    <div data-display-if="!output.__reactivedoc__" data-ns-prefix="" style="display: none;">
+      <div id="rmd_loader_wrapper">
+        <div id="rmd_loader" style="">
+          <p>Please wait...</p>
+          <img src="./Don&#39;t call me Moran_files/rmd_loader.gif">
+        </div>
+      </div>
+    </div>
+    <div id="__reactivedoc__" class="shiny-html-output shiny-bound-output" aria-live="polite">
+
+
+
+
+
+
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="section-TOC" class="tocify">
+<ul id="tocify-header1" class="tocify-header list-group"><li class="tocify-item list-group-item" data-unique="Introduction" style="cursor: pointer;">Introduction</li></ul><ul id="tocify-header2" class="tocify-header list-group"><li class="tocify-item list-group-item" data-unique="Project_Data" style="cursor: pointer;">Project Data</li><ul class="tocify-subheader list-group" data-tag="3"><li class="tocify-item list-group-item" data-unique="2019_ACS_Data">2019 ACS Data</li><li class="tocify-item list-group-item" data-unique="Primary_Training_Dataset:_Housing_Data" style="cursor: pointer;">Primary Training Dataset: Housing Data</li><li class="tocify-item list-group-item" data-unique="Municipalities" style="cursor: pointer;">Municipalities</li><li class="tocify-item list-group-item" data-unique="Parks,_Landmarks,_and_Trailheads" style="cursor: pointer;">Parks, Landmarks, and Trailheads</li><li class="tocify-item list-group-item" data-unique="Playgrounds,_Schools,_Flood_Plains" style="cursor: pointer;">Playgrounds, Schools, Flood Plains</li></ul></ul><ul id="tocify-header3" class="tocify-header list-group"><li class="tocify-item list-group-item" data-unique="The_Model:_Regression_and_Cross-Validation" style="cursor: pointer;">The Model: Regression and Cross-Validation</li><ul class="tocify-subheader list-group" data-tag="3"><li class="tocify-item list-group-item" data-unique="Preparation_for_machine_learning_and_regression_model">Preparation for machine learning and regression model</li><li class="tocify-item list-group-item" data-unique="Correlation__Test_Signifcance" style="cursor: pointer;">Correlation &amp; Test Signifcance</li><li class="tocify-item list-group-item" data-unique="100-fold_validation" style="cursor: pointer;">100-fold validation</li><li class="tocify-item list-group-item" data-unique="MAE_Histogram" style="cursor: pointer;">MAE Histogram</li></ul></ul><ul id="tocify-header4" class="tocify-header list-group"><li class="tocify-item list-group-item" data-unique="Final_Prediction_of_remaining_25%_of_Data" style="cursor: pointer;">Final Prediction of remaining 25% of Data</li><ul class="tocify-subheader list-group" data-tag="3"><li class="tocify-item list-group-item" data-unique="Plot_Predictions">Plot Predictions</li><li class="tocify-item list-group-item" data-unique="Lag_Price_Errors">Lag Price Errors</li><li class="tocify-item list-group-item" data-unique="Moran’s_I">Moran’s I</li><li class="tocify-item list-group-item" data-unique="Predicted_Results_by_Municipality">Predicted Results by Municipality</li></ul></ul><ul id="tocify-header5" class="tocify-header list-group"><li class="tocify-item list-group-item" data-unique="Conclusion">Conclusion</li></ul></div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id="section-header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="http://127.0.0.1:3289/FinalProduct.Rmd#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="http://127.0.0.1:3289/FinalProduct.Rmd#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Midterm Project</h1>
+<h4 class="author">Yihong Hu, Sabir Nazarov, Will Friedrichs</h4>
+<h4 class="date">10/20/2021</h4>
+
+</div>
+
+
+<div id="section-introduction" class="section level1">
+<div name="Introduction" data-unique="Introduction"></div><h1>Introduction</h1>
+<p>Zillow’s housing market predictions are an integral part of its business model, helping the company achieve a greater understanding of how the market will value properties. Our team is confident that through our geospatial machine learning-based model that considers not only attributes of homes, but local factors as well, we can improve Zillow’s house price predictions for the Boulder County study area and provide a template which can be adapted to other localities.</p>
+<p>This project outlines and analyzes the process by which we created our model in four broad stages: data gathering, feature creation, multivariate regression modeling, and prediction generation. We present these stages sequentially, though the ordering does not necessarily reflect the order in which parts of the model were constructed.</p>
+<p>Along with written analysis, plots, and tables, the R code that produces the model is presented in the document in chunks. The chunk below, for example, loads 17 libraries for use later, helps set up the generation of the r markdown file, gives access to online resources helpful to our analysis, and sets up a color scheme to be used for data visualization.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F361" aria-expanded="false" aria-controls="rcode-643E0F361"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F361"><pre class="r"><code class="hljs"><span class="hljs-keyword">library</span>(tidyverse)
+<span class="hljs-keyword">library</span>(tidycensus)
+<span class="hljs-keyword">library</span>(sf)
+<span class="hljs-keyword">library</span>(kableExtra)
+<span class="hljs-keyword">library</span>(dplyr)
+<span class="hljs-keyword">library</span>(ggcorrplot)
+<span class="hljs-keyword">library</span>(caret)
+<span class="hljs-keyword">library</span>(spdep)
+<span class="hljs-keyword">library</span>(ckanr)
+<span class="hljs-keyword">library</span>(FNN)
+<span class="hljs-keyword">library</span>(grid)
+<span class="hljs-keyword">library</span>(gridExtra)
+<span class="hljs-keyword">library</span>(jtools)     
+<span class="hljs-keyword">library</span>(ggstance)
+<span class="hljs-keyword">library</span>(rpart)
+<span class="hljs-keyword">library</span>(ggplot2)
+<span class="hljs-keyword">library</span>(stargazer)
+
+<span class="hljs-comment"># set up knitr</span>
+knitr::opts_chunk$set(
+    message = <span class="hljs-literal">FALSE</span>,
+    <span class="hljs-keyword">warning</span> = <span class="hljs-literal">FALSE</span>,
+    include = <span class="hljs-literal">TRUE</span>,
+    cache = <span class="hljs-literal">TRUE</span>,
+    echo=<span class="hljs-literal">TRUE</span>
+)
+
+<span class="hljs-comment"># Set root directory</span>
+root.dir = <span class="hljs-string">"https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/DATA/"</span>
+
+<span class="hljs-comment"># Locate the source of functions from raw.githubusercontent.com</span>
+<span class="hljs-keyword">source</span>(<span class="hljs-string">"https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-Landing/master/functions.r"</span>)
+
+<span class="hljs-comment"># Save q5 and qbr functions for later use</span>
+q5 &lt;- <span class="hljs-keyword">function</span>(variable) {as.factor(ntile(variable, <span class="hljs-number">5</span>))}
+
+qbr &lt;- <span class="hljs-keyword">function</span>(df, variable, rnd) {
+  <span class="hljs-keyword">if</span> (missing(rnd)) {
+    as.character(quantile(round(df[[variable]],<span class="hljs-number">0</span>),
+                          c(<span class="hljs-number">.01</span>,<span class="hljs-number">.2</span>,<span class="hljs-number">.4</span>,<span class="hljs-number">.6</span>,<span class="hljs-number">.8</span>), na.rm=<span class="hljs-literal">T</span>))
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (rnd == <span class="hljs-literal">FALSE</span> | rnd == <span class="hljs-literal">F</span>) {
+    as.character(formatC(quantile(df[[variable]]), digits = <span class="hljs-number">3</span>),
+                 c(<span class="hljs-number">.01</span>,<span class="hljs-number">.2</span>,<span class="hljs-number">.4</span>,<span class="hljs-number">.6</span>,<span class="hljs-number">.8</span>), na.rm=<span class="hljs-literal">T</span>)
+  }
+}
+
+<span class="hljs-comment"># Set a color palette for later use</span>
+palette5 &lt;- c(<span class="hljs-string">"#25CB10"</span>, <span class="hljs-string">"#5AB60C"</span>, <span class="hljs-string">"#8FA108"</span>,   <span class="hljs-string">"#C48C04"</span>, <span class="hljs-string">"#FA7800"</span>)</code></pre></div>
+</div>
+<div id="section-project-data" class="section level1">
+<div name="Project_Data" data-unique="Project_Data"></div><h1>Project Data</h1>
+<div id="section-acs-data" class="section level3">
+<div name="2019_ACS_Data" data-unique="2019_ACS_Data"></div><h3>2019 ACS Data</h3>
+<p>The data gathering process begins by accessing tract-level geography, population, and demographic data from the US Government Census API. The data uses American Community Survey results for 2019. Variables of interest are isolated and wrangled to create features required for the analysis.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F362" aria-expanded="false" aria-controls="rcode-643E0F362"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F362"><pre class="r"><code class="hljs">varlist_2019 &lt;- load_variables(<span class="hljs-number">2019</span>, <span class="hljs-string">"acs5"</span>, cache = <span class="hljs-literal">TRUE</span>)
+
+census_api_key(<span class="hljs-string">"94efffd19b56ad527e379faea1653ee74dc3de4a"</span>,overwrite = <span class="hljs-literal">TRUE</span>)
+
+tracts19 &lt;- get_acs(geography = <span class="hljs-string">"tract"</span>,                         
+                    variables = c(<span class="hljs-string">"B01001_001"</span>,<span class="hljs-string">"B23025_004"</span>,<span class="hljs-string">"B06011_001"</span>,
+                                  <span class="hljs-string">"B06012_002"</span>,<span class="hljs-string">"B02001_002"</span>,<span class="hljs-string">"B25002_003"</span>,
+                                  <span class="hljs-string">"B25013_006"</span>,<span class="hljs-string">"B08013_001"</span>,<span class="hljs-string">"B15012_009"</span>), 
+                    year=<span class="hljs-number">2019</span>, 
+                    state=<span class="hljs-number">08</span>, 
+                    county=<span class="hljs-number">013</span>,
+                    output = <span class="hljs-string">"wide"</span>,
+                    geometry=<span class="hljs-literal">TRUE</span>) %&gt;% 
+            st_transform(<span class="hljs-string">'ESRI:102254'</span>) %&gt;%
+            select( c(<span class="hljs-string">"GEOID"</span>,<span class="hljs-string">"B01001_001E"</span>,<span class="hljs-string">"B23025_004E"</span>,<span class="hljs-string">"B06011_001E"</span>,
+                      <span class="hljs-string">"B06012_002E"</span>,<span class="hljs-string">"B02001_002E"</span>,<span class="hljs-string">"B25002_003E"</span>,
+                    <span class="hljs-string">"B25013_006E"</span>,<span class="hljs-string">"B08013_001E"</span>,<span class="hljs-string">"B15012_009E"</span>,<span class="hljs-string">"geometry"</span>) ) %&gt;%
+            rename(tot_pop = <span class="hljs-string">"B01001_001E"</span>,
+                   empl_pop = <span class="hljs-string">"B23025_004E"</span>,
+                   med_inc = <span class="hljs-string">"B06011_001E"</span>,
+                   pvty_pop = <span class="hljs-string">"B06012_002E"</span>,
+                   white_pop = <span class="hljs-string">"B02001_002E"</span>,
+                   vac_occ = <span class="hljs-string">"B25002_003E"</span>,
+                   own_occ_bach = <span class="hljs-string">"B25013_006E"</span>,
+                   tt_work = <span class="hljs-string">"B08013_001E"</span>,
+                   sci_bach = <span class="hljs-string">"B15012_009E"</span>) %&gt;%
+            mutate(area = as.numeric(st_area(geometry)/<span class="hljs-number">1000000</span>))%&gt;%
+            mutate(pop_den = tot_pop/area)</code></pre></div>
+</div>
+<div id="section-primary-training-dataset-housing-data" class="section level3">
+<div name="Primary_Training_Dataset:_Housing_Data" data-unique="Primary_Training_Dataset:_Housing_Data"></div><h3>Primary Training Dataset: Housing Data</h3>
+<p>The primary training dataset provides information on a variety of features associated with houses, along with house prices. Some of the houses have prices listed, while others do not. After other variables are added to the dataset for each house, OLS regression uses houses with price information to create our model, which is a formula that can produce price from those oteher variables.</p>
+<p>Given the original primary dataset, we wrangled and joined ACS tract-based demographic data that we theorized could predict housing prices. Each house is ascribed the demographic variables associated with its tract.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F363" aria-expanded="false" aria-controls="rcode-643E0F363"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F363"><pre class="r"><code class="hljs"><span class="hljs-comment"># This loads all the data into "studentData".</span>
+studentData &lt;- st_read(<span class="hljs-string">"studentData.geojson"</span>, crs = <span class="hljs-string">'ESRI:102254'</span>)%&gt;%
+  mutate(Age = <span class="hljs-number">2021</span> - builtYear) %&gt;%
+  mutate(TotalBath = nbrThreeQtrBaths + nbrFullBaths + nbrHalfBaths)
+
+studentData %&gt;%
+st_make_valid(geometry)
+
+<span class="hljs-comment"># Attach ACS data</span>
+studentData &lt;- st_join(studentData, tracts19, join = st_within)
+
+<span class="hljs-comment">#Boulder County Boundary</span>
+BoulderCounty_Bundary &lt;-
+st_read(<span class="hljs-string">"https://opendata.arcgis.com/datasets/964b8f3b3dbe401bb28d49ac93d29dc4_0.geojson"</span>)%&gt;%
+  select(geometry) %&gt;%
+  st_transform(<span class="hljs-string">'ESRI:102254'</span>)
+
+<span class="hljs-comment">#Boulder Municipal Boundary</span>
+BoulderMuni_Boundary &lt;-
+  st_read(<span class="hljs-string">"https://opendata.arcgis.com/datasets/9597d3916aba47e887ca563d5ac15938_0.geojson"</span>)%&gt;%
+  st_transform(<span class="hljs-string">'ESRI:102254'</span>)%&gt;%
+  rename(Municipality = ZONEDESC)</code></pre></div>
+</div>
+<div id="section-municipalities" class="section level3">
+<div name="Municipalities" data-unique="Municipalities"></div><h3>Municipalities</h3>
+<p>Boulder County and the boundaries of the municipalities within are drawn from open-source geometry files. The map below displays the sale price of homes as raster data, superimposed onto Boulder County and its 10 municipalities.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F364" aria-expanded="false" aria-controls="rcode-643E0F364"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F364"><pre class="r"><code class="hljs"><span class="hljs-comment">#Map of Boulder County with Housing Sales Price and municipal boundary</span>
+ggplot()+
+  geom_sf(data = BoulderCounty_Bundary, fill = <span class="hljs-string">"grey70"</span>) +
+  geom_sf(data = BoulderMuni_Boundary, aes(fill = Municipality, alpha=<span class="hljs-number">0.5</span>),colour = <span class="hljs-string">"white"</span>) +
+  geom_sf(data = studentData, aes(colour = q5(price)),size=<span class="hljs-number">.85</span>)+
+  labs(title = <span class="hljs-string">"Housing Sales Under Municipalities"</span>, subtitle = <span class="hljs-string">"Boulder County, CO"</span>, caption = <span class="hljs-string">"Fig 1"</span>)+
+  scale_colour_manual(values = palette5,
+                      labels=qbr(studentData,<span class="hljs-string">"price"</span>),
+                      name = <span class="hljs-string">"Sale Price"</span>) +
+  mapTheme()</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/Project Data Map-1.png" width="672"></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F365" aria-expanded="false" aria-controls="rcode-643E0F365"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F365"><pre class="r"><code class="hljs"><span class="hljs-comment"># Median Housing Price in Each Municipality</span>
+House_in_muni_boundary &lt;- st_intersection(studentData, BoulderMuni_Boundary) %&gt;%
+  mutate(pct_pvty = pvty_pop/tot_pop * <span class="hljs-number">100</span>,
+         pct_white = white_pop/tot_pop * <span class="hljs-number">100</span>,
+         )</code></pre></div>
+<p>Table 1, below, summarizes key indicators by municipality. Each variable represents the mean values ascribed to homes in the municipality. For example, total population represents not the population of the municipality, but the mean tract population ascribed to each house. The table reveals that the price is strongly related to municipality.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F366" aria-expanded="false" aria-controls="rcode-643E0F366"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F366"><pre class="r"><code class="hljs">Municipality.Summary &lt;-
+  st_drop_geometry(House_in_muni_boundary) %&gt;%
+  group_by(Municipality) %&gt;%
+  summarize(Medium.Price = median(price, na.rm = <span class="hljs-literal">T</span>),
+            Mean.Price = mean(price, na.rm = <span class="hljs-literal">T</span>),
+            Population = mean(tot_pop, na.rm = <span class="hljs-literal">T</span>),
+            <span class="hljs-string">"Poplation Density per km^2"</span>= mean(pop_den,na.rm=<span class="hljs-literal">T</span>),
+            <span class="hljs-string">"Median Income"</span> = mean(med_inc, na.rm = <span class="hljs-literal">T</span>),
+            <span class="hljs-string">"Poverty Rate"</span> = mean(pct_pvty, na.rm = <span class="hljs-literal">T</span>),
+             <span class="hljs-string">"White Poplation in %"</span> = mean(pct_white, na.rm = <span class="hljs-literal">T</span>),
+            <span class="hljs-string">"Building Age"</span> = mean(Age,na.rm = <span class="hljs-literal">T</span>)) %&gt;%
+  arrange(desc(Medium.Price))
+
+kable(Municipality.Summary, digits = <span class="hljs-number">2</span>) %&gt;%
+  kable_styling() %&gt;%
+  footnote(general_title = <span class="hljs-string">"\n"</span>,
+           general = <span class="hljs-string">"Table 1. Housing prices grouped by municipalities"</span>)</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;border-bottom: 0;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Municipality
+</th>
+<th style="text-align:right;">
+Medium.Price
+</th>
+<th style="text-align:right;">
+Mean.Price
+</th>
+<th style="text-align:right;">
+Population
+</th>
+<th style="text-align:right;">
+Poplation Density per km^2
+</th>
+<th style="text-align:right;">
+Median Income
+</th>
+<th style="text-align:right;">
+Poverty Rate
+</th>
+<th style="text-align:right;">
+White Poplation in %
+</th>
+<th style="text-align:right;">
+Building Age
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Boulder
+</td>
+<td style="text-align:right;">
+950000
+</td>
+<td style="text-align:right;">
+1228007.0
+</td>
+<td style="text-align:right;">
+4785.49
+</td>
+<td style="text-align:right;">
+1774.41
+</td>
+<td style="text-align:right;">
+43834.62
+</td>
+<td style="text-align:right;">
+12.27
+</td>
+<td style="text-align:right;">
+88.95
+</td>
+<td style="text-align:right;">
+51.38
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Louisville
+</td>
+<td style="text-align:right;">
+680000
+</td>
+<td style="text-align:right;">
+736988.4
+</td>
+<td style="text-align:right;">
+4959.54
+</td>
+<td style="text-align:right;">
+1329.45
+</td>
+<td style="text-align:right;">
+47542.11
+</td>
+<td style="text-align:right;">
+5.29
+</td>
+<td style="text-align:right;">
+90.15
+</td>
+<td style="text-align:right;">
+36.35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Superior
+</td>
+<td style="text-align:right;">
+656900
+</td>
+<td style="text-align:right;">
+705382.1
+</td>
+<td style="text-align:right;">
+4706.15
+</td>
+<td style="text-align:right;">
+982.34
+</td>
+<td style="text-align:right;">
+51891.10
+</td>
+<td style="text-align:right;">
+4.72
+</td>
+<td style="text-align:right;">
+77.15
+</td>
+<td style="text-align:right;">
+17.30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lyons
+</td>
+<td style="text-align:right;">
+652500
+</td>
+<td style="text-align:right;">
+625371.9
+</td>
+<td style="text-align:right;">
+4016.00
+</td>
+<td style="text-align:right;">
+28.63
+</td>
+<td style="text-align:right;">
+51709.00
+</td>
+<td style="text-align:right;">
+4.56
+</td>
+<td style="text-align:right;">
+94.05
+</td>
+<td style="text-align:right;">
+43.54
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Erie
+</td>
+<td style="text-align:right;">
+600000
+</td>
+<td style="text-align:right;">
+624215.4
+</td>
+<td style="text-align:right;">
+12923.00
+</td>
+<td style="text-align:right;">
+316.98
+</td>
+<td style="text-align:right;">
+55578.00
+</td>
+<td style="text-align:right;">
+5.83
+</td>
+<td style="text-align:right;">
+92.79
+</td>
+<td style="text-align:right;">
+8.48
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jamestown
+</td>
+<td style="text-align:right;">
+570000
+</td>
+<td style="text-align:right;">
+566608.3
+</td>
+<td style="text-align:right;">
+5563.08
+</td>
+<td style="text-align:right;">
+21.77
+</td>
+<td style="text-align:right;">
+47650.33
+</td>
+<td style="text-align:right;">
+9.47
+</td>
+<td style="text-align:right;">
+91.31
+</td>
+<td style="text-align:right;">
+42.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lafayette
+</td>
+<td style="text-align:right;">
+560500
+</td>
+<td style="text-align:right;">
+618278.9
+</td>
+<td style="text-align:right;">
+5515.73
+</td>
+<td style="text-align:right;">
+863.10
+</td>
+<td style="text-align:right;">
+45651.45
+</td>
+<td style="text-align:right;">
+6.28
+</td>
+<td style="text-align:right;">
+89.51
+</td>
+<td style="text-align:right;">
+28.93
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nederland
+</td>
+<td style="text-align:right;">
+536250
+</td>
+<td style="text-align:right;">
+586593.5
+</td>
+<td style="text-align:right;">
+5735.00
+</td>
+<td style="text-align:right;">
+16.74
+</td>
+<td style="text-align:right;">
+44740.00
+</td>
+<td style="text-align:right;">
+9.59
+</td>
+<td style="text-align:right;">
+94.68
+</td>
+<td style="text-align:right;">
+41.31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Longmont
+</td>
+<td style="text-align:right;">
+455000
+</td>
+<td style="text-align:right;">
+493376.4
+</td>
+<td style="text-align:right;">
+6057.30
+</td>
+<td style="text-align:right;">
+1272.47
+</td>
+<td style="text-align:right;">
+38180.19
+</td>
+<td style="text-align:right;">
+8.51
+</td>
+<td style="text-align:right;">
+89.09
+</td>
+<td style="text-align:right;">
+29.96
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ward
+</td>
+<td style="text-align:right;">
+295000
+</td>
+<td style="text-align:right;">
+291250.0
+</td>
+<td style="text-align:right;">
+5990.00
+</td>
+<td style="text-align:right;">
+23.59
+</td>
+<td style="text-align:right;">
+47166.00
+</td>
+<td style="text-align:right;">
+9.92
+</td>
+<td style="text-align:right;">
+90.88
+</td>
+<td style="text-align:right;">
+81.71
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; " colspan="100%">
+<span style="font-style: italic;"><br></span>
+</td>
+</tr>
+<tr>
+<td style="padding: 0; " colspan="100%">
+<sup></sup> Table 1. Housing prices grouped by municipalities
+</td>
+</tr>
+</tfoot>
+</table>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F367" aria-expanded="false" aria-controls="rcode-643E0F367"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F367"><pre class="r"><code class="hljs">studentData &lt;- st_join(studentData, BoulderMuni_Boundary, join = st_within)
+
+studentData &lt;- 
+studentData %&gt;%
+  select(-c(OBJECTID, ZONECLASS, LASTUPDATE,LASTEDITOR, REG_PDF_URL, Shape_STArea__, 
+            Shape_STLength__, ShapeSTArea,ShapeSTLength
+            ))
+
+<span class="hljs-comment"># Creating dummy variables for municipalities</span>
+studentData &lt;- mutate(studentData, Loui_dummy = case_when(Municipality==<span class="hljs-string">"Louisville"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Louisville"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Ward_dummy = case_when(Municipality==<span class="hljs-string">"Ward"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Ward"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Jame_dummy = case_when(Municipality==<span class="hljs-string">"Jamestown"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Jamestown"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Nede_dummy = case_when(Municipality==<span class="hljs-string">"Nederland"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Nederland"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Boul_dummy = case_when(Municipality==<span class="hljs-string">"Boulder"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Boulder"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Erie_dummy = case_when(Municipality==<span class="hljs-string">"Erie"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Erie"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Lafa_dummy = case_when(Municipality==<span class="hljs-string">"Lafayette"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Lafayette"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Long_dummy = case_when(Municipality==<span class="hljs-string">"Longmont"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Longmont"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Lyon_dummy = case_when(Municipality==<span class="hljs-string">"Lyons"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Lyons"</span>~ <span class="hljs-number">0</span>))
+studentData &lt;- mutate(studentData, Supe_dummy = case_when(Municipality==<span class="hljs-string">"Superior"</span>~ <span class="hljs-number">1</span>, Municipality!=<span class="hljs-string">"Superior"</span>~ <span class="hljs-number">0</span>))
+
+studentData$Loui_dummy[is.na(studentData$Loui_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Ward_dummy[is.na(studentData$Ward_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Jame_dummy[is.na(studentData$Jame_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Nede_dummy[is.na(studentData$Nede_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Boul_dummy[is.na(studentData$Boul_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Erie_dummy[is.na(studentData$Erie_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Lafa_dummy[is.na(studentData$Lafa_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Long_dummy[is.na(studentData$Long_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Lyon_dummy[is.na(studentData$Lyon_dummy)] &lt;- <span class="hljs-number">0</span>
+studentData$Supe_dummy[is.na(studentData$Supe_dummy)] &lt;- <span class="hljs-number">0</span></code></pre></div>
+</div>
+<div id="section-parks-landmarks-and-trailheads" class="section level3">
+<div name="Parks,_Landmarks,_and_Trailheads" data-unique="Parks,_Landmarks,_and_Trailheads"></div><h3>Parks, Landmarks, and Trailheads</h3>
+<p>The Boulder area is rich in natural beauty and outdoor activities. We thought it likely that home buyers might place a premium on proximity to locations like parks, natural landmarks, and trailheads. Thus, we incorporate several variables related to this concept into our model.</p>
+<p>For parks, we downloaded a polygon of green space (or park area) in Boulder County, and created three variables based on each home’s “nearest neighbors”. One variable represented the shortest distance between a home and green space, another represented the mean of the distances to the two nearest areas of green space, and the third took the mean distances to the three nearest green spaces. Our fourth variable was created by the number of park centroids within a 500m buffer of each home.</p>
+<p>A map of trail heads produced a similar set of variables, however five were created by nearest neighbors analysis rather than three, and a 1000m buffer was used for the last variable rather than a 500m buffer.</p>
+<p>For landmarks, a single variable was added, expressing the distance between the home and the nearest landmark.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F368" aria-expanded="false" aria-controls="rcode-643E0F368"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F368"><pre class="r"><code class="hljs"><span class="hljs-comment"># Load Park data</span>
+GreenSpacePolygon &lt;- st_read(<span class="hljs-string">"County_Open_Space.geojson"</span>) %&gt;%
+                     st_transform(<span class="hljs-string">'ESRI:102254'</span>)
+
+Park &lt;- GreenSpacePolygon[!is.na(GreenSpacePolygon$PARK_GROUP),] %&gt;%
+        st_centroid()
+  
+st_c &lt;- st_coordinates
+
+
+studentData &lt;-
+  studentData %&gt;% 
+  mutate(park_nn1 = nn_function(st_c(studentData), st_c(Park), <span class="hljs-number">1</span>),
+         park_nn2 = nn_function(st_c(studentData), st_c(Park), <span class="hljs-number">2</span>),
+         park_nn3 = nn_function(st_c(studentData), st_c(Park), <span class="hljs-number">3</span>),
+         park_dist = st_distance(studentData,Park))
+
+Park_in_buffer &lt;-
+  st_join(Park,st_buffer(studentData,<span class="hljs-number">500</span>),join = st_within)
+
+PKCount &lt;-
+  Park_in_buffer %&gt;%
+  count(MUSA_ID)%&gt;%
+  st_drop_geometry()
+
+studentData &lt;-
+  left_join(studentData, PKCount, by = <span class="hljs-string">"MUSA_ID"</span> )
+
+studentData &lt;-
+  studentData %&gt;%
+  rename(PKCount500m = n)
+
+studentData$PKCount500m[is.na(studentData$PKCount500m)] &lt;- <span class="hljs-number">0</span>
+
+<span class="hljs-comment"># Load Landmarks data</span>
+landmarksPolygon &lt;- st_union(st_read(<span class="hljs-string">"Natural_Landmarks.geojson"</span>)) %&gt;%
+  st_transform(<span class="hljs-string">'ESRI:102254'</span>)
+
+<span class="hljs-comment"># attach distance to land marks data</span>
+studentData &lt;- mutate(studentData, landmark_dist = st_distance(studentData, landmarksPolygon))
+
+<span class="hljs-comment"># Loading Trail Heads Locations</span>
+TrailHead &lt;- 
+  st_read(<span class="hljs-string">"https://opendata.arcgis.com/datasets/5ade4ef915c54430a32026bcb03fe1d7_0.geojson"</span>) %&gt;%
+  st_transform(<span class="hljs-string">'ESRI:102254'</span>)%&gt;%
+  select(geometry)
+
+<span class="hljs-comment">#Apply buffer counts and nearest neighbor function on trail heads</span>
+Trailhead_in_buffer &lt;-
+  st_join(TrailHead,st_buffer(studentData,<span class="hljs-number">1000</span>),join = st_within)
+
+TrailHeadCount &lt;-
+  Trailhead_in_buffer %&gt;%
+  count(MUSA_ID)%&gt;%
+  st_drop_geometry()
+
+studentData &lt;-
+  left_join(studentData, TrailHeadCount, by = <span class="hljs-string">"MUSA_ID"</span> )
+
+studentData &lt;-
+  studentData %&gt;%
+  rename(TrailHead1000m = n)
+
+studentData$TrailHead1000m[is.na(studentData$TrailHead1000m)] &lt;- <span class="hljs-number">0</span>
+
+studentData &lt;-
+  studentData %&gt;% 
+  mutate(
+    head_nn1 = nn_function(st_c(studentData), st_c(TrailHead), <span class="hljs-number">1</span>),
+    head_nn2 = nn_function(st_c(studentData), st_c(TrailHead), <span class="hljs-number">2</span>), 
+    head_nn3 = nn_function(st_c(studentData), st_c(TrailHead), <span class="hljs-number">3</span>),
+    head_nn4 = nn_function(st_c(studentData), st_c(TrailHead), <span class="hljs-number">4</span>), 
+    head_nn5 = nn_function(st_c(studentData), st_c(TrailHead), <span class="hljs-number">5</span>))
+
+studentData &lt;-
+  studentData %&gt;%
+  mutate(trail_dist = st_distance(studentData, TrailHead))</code></pre></div>
+</div>
+<div id="section-playgrounds-schools-flood-plains" class="section level3">
+<div name="Playgrounds,_Schools,_Flood_Plains" data-unique="Playgrounds,_Schools,_Flood_Plains"></div><h3>Playgrounds, Schools, Flood Plains</h3>
+<p>Additional variables to be considered by the model come from proximity to playgrounds, schools, and flood plains. Playgrounds are important amenities for families with young children, and may increase land value and be associated with higher housing prices. Our playground indicator reflects the number of playgrounds within a 500m radius of a house.</p>
+<p>Similarly, a greater number of nearby schools may reflect higher house prices as well. Our school indicator, like the playground indicator, is based on a 500m radius of a house in the dataset. Several variables are also created by a nearest neighbors analysis of specifically private schools.</p>
+<p>Finally, distance to floodplain is added because of the potential connection between risky proximity to floodable areas and disadvantaged areas. This is simply represented by the distance between a given home and the floodplain.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F369" aria-expanded="false" aria-controls="rcode-643E0F369"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F369"><pre class="r"><code class="hljs"><span class="hljs-comment">#Loading Playground Locations</span>
+Playground &lt;- 
+  st_read(<span class="hljs-string">"Playground_Sites_Points.GEOJSON"</span>) %&gt;%
+  st_transform(<span class="hljs-string">'ESRI:102254'</span>)%&gt;%
+  drop_na(PROPID)%&gt;%
+  select(geometry)
+
+Playground.sf &lt;-
+  st_join(Playground,st_buffer(studentData,<span class="hljs-number">500</span>),join = st_within)
+
+PGCount &lt;-
+  Playground.sf %&gt;%
+  count(MUSA_ID)%&gt;%
+  st_drop_geometry()
+
+studentData &lt;-
+  left_join(studentData, PGCount, by = <span class="hljs-string">"MUSA_ID"</span> )
+  
+studentData &lt;-
+  studentData %&gt;%
+  rename(pgcount500m = n)
+
+studentData$pgcount500m[is.na(studentData$pgcount500m)] &lt;- <span class="hljs-number">0</span>
+  
+
+<span class="hljs-comment">#Loading School Locations</span>
+Schools &lt;- 
+  st_read(<span class="hljs-string">"CDPHE_CDOE_School_Locations_and_District_Office_Locations.GEOJSON"</span>)%&gt;%
+  st_transform(<span class="hljs-string">'ESRI:102254'</span>)%&gt;%
+  filter(COUNTY == <span class="hljs-string">"BOULDER"</span>)
+  
+Private_School &lt;-
+  filter(Schools, startsWith(Type_, <span class="hljs-string">"Non-"</span>))
+
+studentData &lt;-
+  studentData %&gt;% 
+  mutate(
+  school_nn1 = nn_function(st_c(studentData), st_c(Schools), <span class="hljs-number">1</span>))
+
+studentData &lt;-
+  studentData %&gt;%
+  mutate(
+    privatesch_nn1 = nn_function(st_c(studentData),st_c(Private_School),<span class="hljs-number">1</span>),
+    privatesch_nn2 = nn_function(st_c(studentData),st_c(Private_School),<span class="hljs-number">2</span>),
+    privatesch_nn3 = nn_function(st_c(studentData),st_c(Private_School),<span class="hljs-number">3</span>),
+    privat_dist = st_distance(studentData,Private_School, by_element = <span class="hljs-literal">TRUE</span>))
+
+<span class="hljs-comment">#Loading Flood Plain</span>
+Floodplain &lt;-
+ st_read(<span class="hljs-string">"https://opendata.arcgis.com/datasets/30674682e55e4e1b8b0e407b0fe23b9a_0.geojson"</span>) %&gt;%
+ st_transform(<span class="hljs-string">'ESRI:102254'</span>)%&gt;%
+  st_union()
+
+studentData &lt;-
+  studentData %&gt;%
+  mutate(flood_dist = st_distance(studentData, Floodplain))
+
+
+<span class="hljs-comment"># This selects all numeric variables as preparation for the</span>
+<span class="hljs-comment"># correlation analysis that follows.</span>
+<span class="hljs-comment">#(also delete the outliar)</span>
+
+cleanData &lt;- 
+  select_if(st_drop_geometry(studentData), is.numeric) %&gt;%
+  select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount))%&gt;%
+  slice(-<span class="hljs-number">2638</span>)
+
+studentData.GEOID &lt;-
+  select(studentData, GEOID, MUSA_ID)
+
+cleanData &lt;-
+  left_join(cleanData, studentData.GEOID)
+
+cleanData$Ac[(cleanData$Ac)== <span class="hljs-literal">NA</span>] &lt;- <span class="hljs-number">0</span>
+cleanData$Heating[(cleanData$Heating) == <span class="hljs-literal">NA</span>] &lt;- <span class="hljs-number">0</span></code></pre></div>
+</div>
+</div>
+<div id="section-the-model-regression-and-cross-validation" class="section level1">
+<div name="The_Model:_Regression_and_Cross-Validation" data-unique="The_Model:_Regression_and_Cross-Validation"></div><h1>The Model: Regression and Cross-Validation</h1>
+<div id="section-preparation-for-machine-learning-and-regression-model" class="section level3">
+<div name="Preparation_for_machine_learning_and_regression_model" data-unique="Preparation_for_machine_learning_and_regression_model"></div><h3>Preparation for machine learning and regression model</h3>
+<p>The model creates coefficients for several of the previously mentioned variables along with an additional constant value. To make a price prediction for a home, the values of the home’s variables (square footage, population of the census tract, distance to landmarks, etc.) are multiplied by the coefficients created by the model, and the sum of the results produces a house price. Our OLS model must first look at the relationships in the testing set data, where price is known, so that it can optimize the coefficients and produce the best possible model.</p>
+<p>To test our model, we use a 75/25 split of the testing set data. This means that 75% of our model will be trained on, and 25% of the model will be used to make final predictions of house price. Since we already know the price of the points we are testing, we get a sense of the accuracy of our model.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3610" aria-expanded="false" aria-controls="rcode-643E0F3610"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3610"><pre class="r"><code class="hljs"><span class="hljs-comment"># The test data only includes rows comprising the test set.</span>
+<span class="hljs-comment"># Remove Outliars</span>
+
+test.Data &lt;- filter(cleanData, toPredict == <span class="hljs-number">1</span>)
+
+<span class="hljs-comment">#Split the âtoPredictâ == 0 into a separate training and test set </span>
+<span class="hljs-comment">#using a 75/25 split</span>
+
+train.Data &lt;- filter(cleanData, toPredict == <span class="hljs-number">0</span>) %&gt;%
+  na.omit()
+  
+
+inTrain &lt;- createDataPartition(
+  y = paste(train.Data$Heating, train.Data$Ac,train.Data$GEOID), 
+  p = <span class="hljs-number">.75</span>, list = <span class="hljs-literal">FALSE</span>)
+train.Data.1 &lt;- train.Data[inTrain,] 
+train.Data.2 &lt;- train.Data[-inTrain,]
+
+<span class="hljs-comment">#Dataframe with variables of interest</span>
+train.Data.clean &lt;-
+  train.Data %&gt;%
+  select(price, 
+         section_num,
+         qualityCode,
+         TotalFinishedSF,
+         Age,
+         Ac,
+         Heating,
+         med_inc,
+         nbrRoomsNobath,
+         vac_occ,
+         tot_pop,
+         pop_den,
+         pvty_pop,
+         head_nn5,
+         park_nn1,
+         Boul_dummy,
+         Loui_dummy,
+         pgcount500m,
+         TotalBath,
+         flood_dist,
+         landmark_dist,
+         privat_dist)</code></pre></div>
+<p>Below is a graph of the relationship between Housing Sale Price and the distance to the single nearest trailhead neighbor. <img src="./Don&#39;t call me Moran_files/Trailheads-1.png" width="672"></p>
+</div>
+<div id="section-correlation-test-signifcance" class="section level3">
+<div name="Correlation__Test_Signifcance" data-unique="Correlation__Test_Signifcance"></div><h3>Correlation &amp; Test Signifcance</h3>
+<p>Prior to the the regression set-up described in the previous section, the relationships across all the variables are evaluated to test the levels of significance of their relationship with each other. This process determines if variables are colinear, meaning that two or more variables give such similar information that to include all of them would be redundant. In Fig.1, Pearson Correlation is imputed: a strong orange shows strong positive correlation and a strong green shows strong negative correlate between selected variables.</p>
+<p>Note that price is strongly correlated with section number, quality code, total finished square footage, number of bathrooms, being in the city of Boulder (or not), and count of playgrounds within 500 meter radius.</p>
+<p><img src="./Don&#39;t call me Moran_files/Correllation &amp; Test Signicance-1.png" width="672"></p>
+<p>Below is a in-depth look of Fig 1, presenting correlations between price and four selected variables. There is a noticeably strong positive correlation between price and total square footage. Negative correlations between price and the distances to landmarks and private schools are also clear.</p>
+<p>Below the scatterplots, the summary of a linear model with seven variables, their significance, and other related information is listed.</p>
+<p><img src="./Don&#39;t call me Moran_files/Scatter Plots-1.png" width="672"></p>
+<pre><code class="hljs">## 
+## Call:
+## lm(formula = price ~ ., data = train.Data %&gt;% dplyr::select(price, 
+##     qualityCode, TotalFinishedSF, mainfloorSF, Age, pop_den, 
+##     med_inc))
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1590341  -188808   -50635   116708  5488603 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     -1.566e+06  3.802e+04 -41.184  &lt; 2e-16 ***
+## qualityCode      3.717e+04  9.059e+02  41.035  &lt; 2e-16 ***
+## TotalFinishedSF  1.319e+02  8.876e+00  14.860  &lt; 2e-16 ***
+## mainfloorSF      3.624e+01  1.048e+01   3.458 0.000547 ***
+## Age              7.853e+03  2.504e+02  31.366  &lt; 2e-16 ***
+## pop_den          7.324e+01  6.805e+00  10.762  &lt; 2e-16 ***
+## med_inc          6.184e+00  5.942e-01  10.407  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 406400 on 7416 degrees of freedom
+## Multiple R-squared:  0.4735, Adjusted R-squared:  0.473 
+## F-statistic:  1111 on 6 and 7416 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div id="section-fold-validation" class="section level3">
+<div name="100-fold_validation" data-unique="100-fold_validation"></div><h3>100-fold validation</h3>
+<p>Cross-validation is the next step. Through 100-fold cross-validation, 100 random groupings of test data are used to train the model. The results of this cross-validation determine whether the model is appropriate to generalize when we run our model to predict the remaining 25% of known house prices, and finally, when we predict unknown house prices with 100% of the testing set. Of all the data gathered and organized into potential predictive variables, only 27 are tested via this method.</p>
+<p>During the research process, we tested many combinations of variables, but this combination seemed reasonable and was particularly successful in making predictions.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3611" aria-expanded="false" aria-controls="rcode-643E0F3611"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3611"><pre class="r"><code class="hljs"><span class="hljs-comment"># Multivariate regression </span>
+reg1 &lt;- lm(price ~ ., data = train.Data.1 %&gt;% 
+             dplyr::select(price, 
+                 section_num,
+                 qualityCode,
+                 TotalFinishedSF,
+                 Ac,
+                 Heating,
+                 Age,
+                 med_inc,
+                 landmark_dist,
+                 nbrRoomsNobath,
+                 pvty_pop,
+                 privat_dist,
+                 head_nn5,
+                 park_nn1,
+                 Loui_dummy,
+                 Nede_dummy,
+                 Boul_dummy,
+                 Erie_dummy,
+                 Long_dummy,
+                 Lyon_dummy,
+                 pgcount500m,
+                 TotalBath,
+                 flood_dist,
+                 privat_dist))
+
+
+
+stargazer(reg1, type = <span class="hljs-string">"html"</span>, title = <span class="hljs-string">"Table 2. Variation of selected variable and Error Control of the regression model"</span>,out=<span class="hljs-string">"table1.html"</span>,dep.var.labels = <span class="hljs-string">"Housing Price"</span>)
+
+reg1.tidy &lt;-
+  tidy(reg1,
+       <span class="hljs-string">"Section Number"</span> = section_num)
+
+kable(reg1.tidy, digits = <span class="hljs-number">2</span>, caption = <span class="hljs-string">"Table 3. Regression Model Predicting Variation on Housing Sales Price"</span>, 
+      col.names = c(<span class="hljs-string">"Predictor"</span>,<span class="hljs-string">"Estimate"</span>,<span class="hljs-string">"Standard Error"</span>, <span class="hljs-string">"T-Value"</span>,<span class="hljs-string">"P-Value"</span>)
+      ) %&gt;%
+  kable_styling()</code></pre></div>
+<p>Table 3. displays the p-value, a “score” that describes how well each variable performs in the prediction of house price across all of the folds of the 100-fold cross validation. A P-value less than 0.05 for a variable indicates that variable is significant. The R-squared value displayed in output code below the table gives a percentage of how much of the total error our model can account for.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3612" aria-expanded="false" aria-controls="rcode-643E0F3612"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3612"><pre class="r"><code class="hljs"><span class="hljs-comment"># This sets up k-fold cross-validation.</span>
+k = <span class="hljs-number">100</span>
+fitControl &lt;- trainControl(method = <span class="hljs-string">"cv"</span>, number = k)
+set.seed(<span class="hljs-number">825</span>)
+<span class="hljs-comment"># variables in the "select(...)" function are considered in the analysis here.</span>
+regression.100foldcv &lt;- 
+  train(price ~ ., data = train.Data.1%&gt;% 
+          select(price, 
+                 section_num,
+                 qualityCode,
+                 TotalFinishedSF,
+                 Ac,
+                 Heating,
+                 Age,
+                 med_inc,
+                 landmark_dist,
+                 nbrRoomsNobath,
+                 pvty_pop,
+                 privat_dist,
+                 head_nn5,
+                 park_nn1,
+                 Loui_dummy,
+                 Nede_dummy,
+                 Boul_dummy,
+                 Erie_dummy,
+                 Long_dummy,
+                 Lyon_dummy,
+                 pgcount500m,
+                 TotalBath,
+                 flood_dist,
+                 privat_dist
+          ),
+  method = <span class="hljs-string">"lm"</span>, trControl = fitControl, na.action = na.pass)
+
+<span class="hljs-comment"># The resulting Mean Absolute Error (MAE) of running this line tells us how</span>
+<span class="hljs-comment"># successful our model is at predicting unknown data. </span>
+
+regression.100foldcv</code></pre></div>
+<pre><code class="hljs">## Linear Regression 
+## 
+## 5654 samples
+##   22 predictor
+## 
+## No pre-processing
+## Resampling: Cross-Validated (100 fold) 
+## Summary of sample sizes: 5598, 5596, 5598, 5598, 5598, 5598, ... 
+## Resampling results:
+## 
+##   RMSE    Rsquared   MAE   
+##   332217  0.6586719  198927
+## 
+## Tuning parameter 'intercept' was held constant at a value of TRUE</code></pre>
+</div>
+<div id="section-mae-histogram" class="section level3">
+<div name="MAE_Histogram" data-unique="MAE_Histogram"></div><h3>MAE Histogram</h3>
+<p>While we are proud of our model’s ability to make predictions, it of course cannot be perfect. The following histogram displays the distribution of the Mean Average Error (MAE) for each of the folds of the 100-fold cross-validation exercise. MAE measures the magnitude of the average difference between the home price we predicted, and the actual price of the home. In most of the folds, the predictions were around $200,000 off-base.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3613" aria-expanded="false" aria-controls="rcode-643E0F3613"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3613"><pre class="r"><code class="hljs"><span class="hljs-comment">#MAE Histogram</span>
+<span class="hljs-comment">#This allows you to see the distribution of MAE of the folds</span>
+
+ggplot(regression.100foldcv$resample, aes(x=MAE))+
+  geom_histogram(colour = <span class="hljs-string">"white"</span>,fill=<span class="hljs-string">"orange"</span>)+
+  labs(title=<span class="hljs-string">"Distribution of MAE"</span>,x=<span class="hljs-string">"Mean Absolute Error"</span>, y = <span class="hljs-string">"Count"</span>,
+       subtitle = <span class="hljs-string">"k-fold cross-validation; k = 100"</span>,
+       caption = <span class="hljs-string">"Figure 3"</span>)+
+  theme_apa()</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/MAE Histogram-1.png" width="672"></p>
+</div>
+</div>
+<div id="section-final-prediction-of-remaining-25-of-data" class="section level1">
+<div name="Final_Prediction_of_remaining_25%_of_Data" data-unique="Final_Prediction_of_remaining_25%_of_Data"></div><h1>Final Prediction of remaining 25% of Data</h1>
+<p>After a set of regression coefficients have been produced and tested by 100-folds validation, the model is used to predict price for the 25% of points with price data that remain unexamined. The results created by running this model are displayed below.</p>
+<p>The resulting 32% Mean Absolute Percentage Error indicates that the model created a decent output. Predictions were, on average, within one third of the value of the full price. This bodes well for the potential of the model to predict prices for the set of home prices lacking set values.</p>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Table 4. Mean Absolute Error and Absolute Percentage Error on the Prediction Trial
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Regression
+</th>
+<th style="text-align:right;">
+Mean Absolute Error ($)
+</th>
+<th style="text-align:right;">
+Mean Absolute Percentage Error (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Trial 1
+</td>
+<td style="text-align:right;">
+187861.5
+</td>
+<td style="text-align:right;">
+0.29
+</td>
+</tr>
+</tbody>
+</table>
+<div id="section-plot-predictions" class="section level3">
+<div name="Plot_Predictions" data-unique="Plot_Predictions"></div><h3>Plot Predictions</h3>
+<p>This plot compares predicted price to actual price. The predicted price forms a straight line, which expected because of the linear nature of the equation created by the model. The logarithmic pattern here suggests that a non-linear model might create a more accurate set of predictions. Future projects aiming to predict house prices with home-specific and location based predictors may find success exploring logarithmic and other nonlinear functions.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3614" aria-expanded="false" aria-controls="rcode-643E0F3614"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3614"><pre class="r"><code class="hljs"><span class="hljs-comment">#Plot of predicted prices as a function of observed price</span>
+ggplot(data = train.Data.2, aes(price,SalePrice.Predict)) +
+  geom_point(size = <span class="hljs-number">.85</span>,colour = <span class="hljs-string">"orange"</span>) + 
+  geom_smooth(method = <span class="hljs-string">"lm"</span>,colour = <span class="hljs-string">"red"</span>,size = <span class="hljs-number">1.2</span>)+
+  labs(x = <span class="hljs-string">"Obeserved Prices"</span>,y = <span class="hljs-string">"Predicted Prices"</span>, title = <span class="hljs-string">"Predicted Prices as a Function of Observed Prices"</span>,
+       subtitle = <span class="hljs-string">"Boulder County, CO (all in $)"</span>, 
+       caption = <span class="hljs-string">"Fig 5"</span>)+
+  theme(plot.title = element_text(size = <span class="hljs-number">20</span>),
+        plot.subtitle = element_text(size = <span class="hljs-number">15</span>),
+        axis.title.x = element_text(size = <span class="hljs-number">15</span>),
+        axis.title.y = element_text(size = <span class="hljs-number">15</span>),
+        axis.line = element_line(colour = <span class="hljs-string">"grey50"</span>, size = <span class="hljs-number">1</span>),
+        panel.grid.major = element_line(linetype = <span class="hljs-string">"dotted"</span>,size = <span class="hljs-number">1</span>))</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/Plot Predictions-1.png" width="672"></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3615" aria-expanded="false" aria-controls="rcode-643E0F3615"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3615"><pre class="r"><code class="hljs"><span class="hljs-comment">#Map of residuals</span>
+<span class="hljs-comment">#This allows you to see the degree of error across over Boulder County</span>
+
+train.Data.2 &lt;-
+  left_join(train.Data.2, tracts19)%&gt;%
+  st_as_sf()
+
+ggplot()+
+  geom_sf(data = BoulderCounty_Bundary, fill = <span class="hljs-string">"grey70"</span>) +
+  geom_sf(data = tracts19,colour = <span class="hljs-string">"Black"</span>) +
+  geom_sf(data = train.Data.2, aes(colour = SalePrice.AbsError),size=<span class="hljs-number">.90</span>)+
+  scale_colour_gradient(low = <span class="hljs-string">"#00cfbb"</span>, high = <span class="hljs-string">"#6f5ad3"</span>,
+    name = <span class="hljs-string">"Absolute Error ($)"</span> ) +
+  labs(title = <span class="hljs-string">"Absolute Errors between Observed and Predicted Housing Price"</span>, Caption = <span class="hljs-string">"Fig 6"</span>)+
+  mapTheme()</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/Plot Predictions-2.png" width="672"></p>
+</div>
+<div id="section-lag-price-errors" class="section level3">
+<div name="Lag_Price_Errors" data-unique="Lag_Price_Errors"></div><h3>Lag Price Errors</h3>
+<p>There is a slight trend relating Sale Price Error to Spatial Lag Errors, suggesting some spatial lag effect. The points with the greatest error are generally a little bit more likely to have nearby points with high error.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3616" aria-expanded="false" aria-controls="rcode-643E0F3616"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3616"><pre class="r"><code class="hljs"><span class="hljs-comment">#Lag Price Errors</span>
+
+coords.test &lt;-  st_coordinates(train.Data.2) 
+neighborList.test &lt;- knn2nb(knearneigh(coords.test, <span class="hljs-number">5</span>))
+spatialWeights.test &lt;- nb2listw(neighborList.test, style=<span class="hljs-string">"W"</span>)
+
+train.Data.2.lag &lt;-
+train.Data.2 %&gt;% 
+  mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error))
+
+ggplot(data = train.Data.2.lag, aes(lagPriceError, SalePrice.Error)) +
+  geom_point(size = <span class="hljs-number">.85</span>,colour = <span class="hljs-string">"orange"</span>) + 
+  geom_smooth(method = <span class="hljs-string">"lm"</span>,colour = <span class="hljs-string">"red"</span>,size = <span class="hljs-number">1.2</span>)+
+  labs(x = <span class="hljs-string">"Spatial Lag of Errors (Mean error of five nearest neighbors)"</span>,y = <span class="hljs-string">"Sale Price Error"</span>, title = <span class="hljs-string">"Lag Sale Price Errors against Predicted Sale Price Error"</span>,
+       subtitle = <span class="hljs-string">"Boulder County, CO (all in $)"</span>,caption = <span class="hljs-string">"Fig 7"</span>)+
+  theme(plot.title = element_text(size = <span class="hljs-number">20</span>),
+        plot.subtitle = element_text(size = <span class="hljs-number">15</span>),
+        axis.title.x = element_text(size = <span class="hljs-number">15</span>),
+        axis.title.y = element_text(size = <span class="hljs-number">15</span>),
+        axis.line = element_line(colour = <span class="hljs-string">"grey50"</span>, size = <span class="hljs-number">1</span>),
+        panel.grid.major = element_line(linetype = <span class="hljs-string">"dotted"</span>,size = <span class="hljs-number">1</span>))</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/Lag Price Errors-1.png" width="672"></p>
+</div>
+<div id="section-morans-i" class="section level3">
+<div name="Moran’s_I" data-unique="Moran’s_I"></div><h3>Moran’s I</h3>
+<p>need p value?&gt;</p>
+<p><img src="./Don&#39;t call me Moran_files/Morans I-1.png" width="672"></p>
+</div>
+<div id="section-predicted-results-by-municipality" class="section level3">
+<div name="Predicted_Results_by_Municipality" data-unique="Predicted_Results_by_Municipality"></div><h3>Predicted Results by Municipality</h3>
+<p>The map below shows predicted values for the entire dataset overlaid onto a map of municipalities. According to the model, most of the municipalities are predicted to have houses at a range of prices. The City of Boulder is interestingly more clustered, with higher priced houses in the north and comparatively lower priced houses in the south.</p>
+<p><img src="./Don&#39;t call me Moran_files/Prediction on Challenge Set-1.png" width="672"></p>
+<p>Within the City of Boulder itself, the greatest error was associated with the central tracts</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3617" aria-expanded="false" aria-controls="rcode-643E0F3617"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3617"><pre class="r"><code class="hljs"><span class="hljs-comment">#Census Track with Error</span>
+tracts_with_error &lt;-
+  st_join(tracts19 ,train.Data.2)%&gt;%
+  select(price,GEOID.x,SalePrice.APE,SalePrice.AbsError)
+
+tracts_with_error &lt;-
+  tracts_with_error %&gt;%
+  group_by(GEOID.x)%&gt;%
+  summarize(<span class="hljs-string">"Mean.absE"</span> = mean(SalePrice.AbsError, na.rm = <span class="hljs-literal">T</span>),
+            <span class="hljs-string">"MAPE"</span> = mean(SalePrice.APE, na.rm = <span class="hljs-literal">T</span>),
+            <span class="hljs-string">"Mean.price"</span> = mean(price), na.rm = <span class="hljs-literal">T</span>)%&gt;%
+  mutate(MAPE.Pct = MAPE*<span class="hljs-number">100</span>)
+
+ggplot()+
+  geom_sf(data = BoulderCounty_Bundary, fill = <span class="hljs-string">"grey70"</span>) +
+  geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = <span class="hljs-string">"black"</span>)+
+  scale_fill_gradient(low = <span class="hljs-string">"white"</span>, high = <span class="hljs-string">"brown"</span>,
+    name = <span class="hljs-string">"Absolute Percentage Error"</span> ) +
+  mapTheme()</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/Muni With Error-1.png" width="672"></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3618" aria-expanded="false" aria-controls="rcode-643E0F3618"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3618"><pre class="r"><code class="hljs"><span class="hljs-comment">#scatterplot plot of MAPE by neighborhood as a function of mean price by neighborhood.</span>
+
+ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
+  geom_point(size = <span class="hljs-number">1.5</span>,colour = <span class="hljs-string">"orange"</span>) + 
+  labs(x = <span class="hljs-string">"Mean Housing Prices"</span>,y = <span class="hljs-string">"Mean Absolute Percentage Errors"</span>, 
+       title = <span class="hljs-string">"Absolute Percentage Error as sa function of Mean Housing Prices by Municipalities"</span>,
+       subtitle = <span class="hljs-string">"Boulder County, CO"</span>)+
+  theme(plot.title = element_text(size = <span class="hljs-number">20</span>),
+        plot.subtitle = element_text(size = <span class="hljs-number">15</span>),
+        axis.title.x = element_text(size = <span class="hljs-number">15</span>),
+        axis.title.y = element_text(size = <span class="hljs-number">15</span>),
+        axis.line = element_line(colour = <span class="hljs-string">"grey50"</span>, size = <span class="hljs-number">1</span>),
+        panel.grid.major = element_line(linetype = <span class="hljs-string">"dotted"</span>,size = <span class="hljs-number">1</span>))</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/Muni With Error-2.png" width="672"></p>
+<p>#Accounting Neighborhood Effect</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3619" aria-expanded="false" aria-controls="rcode-643E0F3619"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3619"><pre class="r"><code class="hljs">left_join(
+  st_drop_geometry(train.Data.2) %&gt;%
+    group_by(GEOID) %&gt;%
+    summarize(meanPrice = mean(price, na.rm = <span class="hljs-literal">T</span>)),
+  mutate(train.Data.2, predict.fe = 
+                        predict(lm(price ~ GEOID, data = train.Data.2), 
+                        train.Data.2)) %&gt;%
+    st_drop_geometry %&gt;%
+    group_by(GEOID) %&gt;%
+      summarize(meanPrediction = mean(predict.fe))) %&gt;%
+      kable() %&gt;% kable_styling()</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+GEOID
+</th>
+<th style="text-align:right;">
+meanPrice
+</th>
+<th style="text-align:right;">
+meanPrediction
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+08013012101
+</td>
+<td style="text-align:right;">
+2789437.5
+</td>
+<td style="text-align:right;">
+2789437.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012102
+</td>
+<td style="text-align:right;">
+1674844.4
+</td>
+<td style="text-align:right;">
+1674844.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012103
+</td>
+<td style="text-align:right;">
+1573294.1
+</td>
+<td style="text-align:right;">
+1573294.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012104
+</td>
+<td style="text-align:right;">
+1419176.7
+</td>
+<td style="text-align:right;">
+1419176.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012105
+</td>
+<td style="text-align:right;">
+1471200.0
+</td>
+<td style="text-align:right;">
+1471200.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012201
+</td>
+<td style="text-align:right;">
+2203525.0
+</td>
+<td style="text-align:right;">
+2203525.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012202
+</td>
+<td style="text-align:right;">
+1287500.0
+</td>
+<td style="text-align:right;">
+1287500.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012203
+</td>
+<td style="text-align:right;">
+602636.4
+</td>
+<td style="text-align:right;">
+602636.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012401
+</td>
+<td style="text-align:right;">
+1387000.0
+</td>
+<td style="text-align:right;">
+1387000.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012501
+</td>
+<td style="text-align:right;">
+781457.1
+</td>
+<td style="text-align:right;">
+781457.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012505
+</td>
+<td style="text-align:right;">
+1805414.3
+</td>
+<td style="text-align:right;">
+1805414.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012507
+</td>
+<td style="text-align:right;">
+692271.4
+</td>
+<td style="text-align:right;">
+692271.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012508
+</td>
+<td style="text-align:right;">
+768700.0
+</td>
+<td style="text-align:right;">
+768700.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012509
+</td>
+<td style="text-align:right;">
+962733.3
+</td>
+<td style="text-align:right;">
+962733.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012510
+</td>
+<td style="text-align:right;">
+1466750.0
+</td>
+<td style="text-align:right;">
+1466750.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012511
+</td>
+<td style="text-align:right;">
+959100.0
+</td>
+<td style="text-align:right;">
+959100.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012603
+</td>
+<td style="text-align:right;">
+917006.7
+</td>
+<td style="text-align:right;">
+917006.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012608
+</td>
+<td style="text-align:right;">
+649060.0
+</td>
+<td style="text-align:right;">
+649060.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012701
+</td>
+<td style="text-align:right;">
+1347684.8
+</td>
+<td style="text-align:right;">
+1347684.8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012705
+</td>
+<td style="text-align:right;">
+813571.4
+</td>
+<td style="text-align:right;">
+813571.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012707
+</td>
+<td style="text-align:right;">
+1590625.0
+</td>
+<td style="text-align:right;">
+1590625.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012708
+</td>
+<td style="text-align:right;">
+857302.7
+</td>
+<td style="text-align:right;">
+857302.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012709
+</td>
+<td style="text-align:right;">
+620210.0
+</td>
+<td style="text-align:right;">
+620210.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012710
+</td>
+<td style="text-align:right;">
+1256276.9
+</td>
+<td style="text-align:right;">
+1256276.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012800
+</td>
+<td style="text-align:right;">
+661541.5
+</td>
+<td style="text-align:right;">
+661541.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012903
+</td>
+<td style="text-align:right;">
+783690.5
+</td>
+<td style="text-align:right;">
+783690.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012904
+</td>
+<td style="text-align:right;">
+663334.1
+</td>
+<td style="text-align:right;">
+663334.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012905
+</td>
+<td style="text-align:right;">
+462985.7
+</td>
+<td style="text-align:right;">
+462985.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013012907
+</td>
+<td style="text-align:right;">
+522980.0
+</td>
+<td style="text-align:right;">
+522980.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013003
+</td>
+<td style="text-align:right;">
+700885.4
+</td>
+<td style="text-align:right;">
+700885.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013004
+</td>
+<td style="text-align:right;">
+809757.9
+</td>
+<td style="text-align:right;">
+809757.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013005
+</td>
+<td style="text-align:right;">
+802281.2
+</td>
+<td style="text-align:right;">
+802281.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013006
+</td>
+<td style="text-align:right;">
+760380.6
+</td>
+<td style="text-align:right;">
+760380.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013201
+</td>
+<td style="text-align:right;">
+862700.0
+</td>
+<td style="text-align:right;">
+862700.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013202
+</td>
+<td style="text-align:right;">
+1515000.0
+</td>
+<td style="text-align:right;">
+1515000.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013205
+</td>
+<td style="text-align:right;">
+1307421.6
+</td>
+<td style="text-align:right;">
+1307421.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013207
+</td>
+<td style="text-align:right;">
+636190.5
+</td>
+<td style="text-align:right;">
+636190.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013208
+</td>
+<td style="text-align:right;">
+475696.6
+</td>
+<td style="text-align:right;">
+475696.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013210
+</td>
+<td style="text-align:right;">
+402729.0
+</td>
+<td style="text-align:right;">
+402729.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013211
+</td>
+<td style="text-align:right;">
+559614.4
+</td>
+<td style="text-align:right;">
+559614.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013212
+</td>
+<td style="text-align:right;">
+479335.5
+</td>
+<td style="text-align:right;">
+479335.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013213
+</td>
+<td style="text-align:right;">
+685536.5
+</td>
+<td style="text-align:right;">
+685536.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013302
+</td>
+<td style="text-align:right;">
+552800.0
+</td>
+<td style="text-align:right;">
+552800.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013305
+</td>
+<td style="text-align:right;">
+401367.7
+</td>
+<td style="text-align:right;">
+401367.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013306
+</td>
+<td style="text-align:right;">
+400500.0
+</td>
+<td style="text-align:right;">
+400500.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013307
+</td>
+<td style="text-align:right;">
+403684.6
+</td>
+<td style="text-align:right;">
+403684.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013308
+</td>
+<td style="text-align:right;">
+412000.0
+</td>
+<td style="text-align:right;">
+412000.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013401
+</td>
+<td style="text-align:right;">
+527214.3
+</td>
+<td style="text-align:right;">
+527214.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013402
+</td>
+<td style="text-align:right;">
+481093.0
+</td>
+<td style="text-align:right;">
+481093.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013503
+</td>
+<td style="text-align:right;">
+388827.3
+</td>
+<td style="text-align:right;">
+388827.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013505
+</td>
+<td style="text-align:right;">
+349750.0
+</td>
+<td style="text-align:right;">
+349750.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013506
+</td>
+<td style="text-align:right;">
+488412.0
+</td>
+<td style="text-align:right;">
+488412.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013507
+</td>
+<td style="text-align:right;">
+423095.2
+</td>
+<td style="text-align:right;">
+423095.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013508
+</td>
+<td style="text-align:right;">
+514563.5
+</td>
+<td style="text-align:right;">
+514563.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013601
+</td>
+<td style="text-align:right;">
+787954.5
+</td>
+<td style="text-align:right;">
+787954.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013701
+</td>
+<td style="text-align:right;">
+1329342.9
+</td>
+<td style="text-align:right;">
+1329342.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013013702
+</td>
+<td style="text-align:right;">
+1239500.0
+</td>
+<td style="text-align:right;">
+1239500.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013060600
+</td>
+<td style="text-align:right;">
+679334.8
+</td>
+<td style="text-align:right;">
+679334.8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013060700
+</td>
+<td style="text-align:right;">
+700066.7
+</td>
+<td style="text-align:right;">
+700066.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013060800
+</td>
+<td style="text-align:right;">
+617722.2
+</td>
+<td style="text-align:right;">
+617722.2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013060900
+</td>
+<td style="text-align:right;">
+711541.7
+</td>
+<td style="text-align:right;">
+711541.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013061300
+</td>
+<td style="text-align:right;">
+740808.0
+</td>
+<td style="text-align:right;">
+740808.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+08013061400
+</td>
+<td style="text-align:right;">
+657894.1
+</td>
+<td style="text-align:right;">
+657894.1
+</td>
+</tr>
+</tbody>
+</table>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3620" aria-expanded="false" aria-controls="rcode-643E0F3620"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3620"><pre class="r"><code class="hljs">reg.nhood &lt;- lm(price ~ ., data = as.data.frame(train.Data.1) %&gt;% 
+                                 select(price, GEOID,
+                 section_num,
+                 qualityCode,
+                 TotalFinishedSF,
+                 Ac,
+                 Heating,
+                 Age,
+                 med_inc,
+                 landmark_dist,
+                 nbrRoomsNobath,
+                 pvty_pop,
+                 privat_dist,
+                 head_nn5,
+                 park_nn1,
+                 Loui_dummy,
+                 Nede_dummy,
+                 Boul_dummy,
+                 Erie_dummy,
+                 Long_dummy,
+                 Lyon_dummy,
+                 pgcount500m,
+                 TotalBath,
+                 flood_dist,
+                 privat_dist))
+
+boulder.test.nhood &lt;-
+  train.Data.2 %&gt;%
+  mutate(Regression = <span class="hljs-string">"Neighborhood Effects"</span>,
+         SalePrice.Predict = predict(reg.nhood, train.Data.2),
+         SalePrice.Error = SalePrice.Predict- price,
+         SalePrice.AbsError = abs(SalePrice.Predict- price),
+         SalePrice.APE = (abs(SalePrice.Predict- price)) / price)</code></pre></div>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3621" aria-expanded="false" aria-controls="rcode-643E0F3621"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3621"><pre class="r"><code class="hljs">bothRegressions &lt;- 
+  rbind(select(train.Data.2, starts_with(<span class="hljs-string">"SalePrice"</span>), Regression, GEOID,price) %&gt;%
+ mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error)),
+select(boulder.test.nhood, starts_with(<span class="hljs-string">"SalePrice"</span>), Regression, GEOID,price) %&gt;%
+  mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error)))
+
+st_drop_geometry(bothRegressions) %&gt;%
+  gather(Variable, Value, -Regression, -GEOID) %&gt;%
+  filter(Variable == <span class="hljs-string">"SalePrice.AbsError"</span> | Variable == <span class="hljs-string">"SalePrice.APE"</span>) %&gt;%
+  group_by(Regression, Variable) %&gt;%
+    summarize(meanValue = mean(Value, na.rm = <span class="hljs-literal">T</span>)) %&gt;%
+    spread(Variable, meanValue) %&gt;%
+    kable()%&gt;% kable_styling()</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Regression
+</th>
+<th style="text-align:right;">
+SalePrice.AbsError
+</th>
+<th style="text-align:right;">
+SalePrice.APE
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Baseline Regression
+</td>
+<td style="text-align:right;">
+187861.5
+</td>
+<td style="text-align:right;">
+0.2939021
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Neighborhood Effects
+</td>
+<td style="text-align:right;">
+162382.3
+</td>
+<td style="text-align:right;">
+0.2517983
+</td>
+</tr>
+</tbody>
+</table>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3622" aria-expanded="false" aria-controls="rcode-643E0F3622"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3622"><pre class="r"><code class="hljs">bothRegressions %&gt;%
+  select(SalePrice.Predict, price, Regression) %&gt;%
+    ggplot(aes(price, SalePrice.Predict)) +
+  geom_point() +
+  stat_smooth(aes(price, price), 
+             method = <span class="hljs-string">"lm"</span>, se = <span class="hljs-literal">FALSE</span>, size = <span class="hljs-number">1</span>, colour=<span class="hljs-string">"#FA7800"</span>) + 
+  stat_smooth(aes(SalePrice.Predict, price), 
+              method = <span class="hljs-string">"lm"</span>, se = <span class="hljs-literal">FALSE</span>, size = <span class="hljs-number">1</span>, colour=<span class="hljs-string">"#25CB10"</span>) +
+  facet_wrap(~Regression) +
+  labs(title=<span class="hljs-string">"Predicted sale price as a function of observed price"</span>,
+       subtitle=<span class="hljs-string">"Orange line represents a perfect prediction; Green line represents prediction"</span>) +
+  plotTheme()</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/unnamed-chunk-4-1.png" width="672"></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3623" aria-expanded="false" aria-controls="rcode-643E0F3623"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3623"><pre class="r"><code class="hljs">tracts19.2 &lt;- 
+  tracts19%&gt;%
+  mutate(percentWhite = white_pop / tot_pop,
+         raceContext = ifelse(percentWhite &gt; <span class="hljs-number">.5</span>, <span class="hljs-string">"Majority White"</span>, <span class="hljs-string">"Majority Non-White"</span>),
+         incomeContext = ifelse(med_inc &gt; <span class="hljs-number">40450</span>, <span class="hljs-string">"High Income"</span>, <span class="hljs-string">"Low Income"</span>))
+
+grid.arrange(ncol = <span class="hljs-number">2</span>,
+  ggplot() + geom_sf(data = na.omit(tracts19.2), aes(fill = raceContext)) +
+    scale_fill_manual(values = c(<span class="hljs-string">"#25CB10"</span>, <span class="hljs-string">"#FA7800"</span>), name=<span class="hljs-string">"Race Context"</span>) +
+    labs(title = <span class="hljs-string">"Race Context"</span>) +
+    mapTheme() + theme(legend.position=<span class="hljs-string">"bottom"</span>), 
+  ggplot() + geom_sf(data = na.omit(tracts19.2), aes(fill = incomeContext)) +
+    scale_fill_manual(values = c(<span class="hljs-string">"#25CB10"</span>, <span class="hljs-string">"#FA7800"</span>), name=<span class="hljs-string">"Income Context"</span>) +
+    labs(title = <span class="hljs-string">"Income Context"</span>) +
+    mapTheme() + theme(legend.position=<span class="hljs-string">"bottom"</span>))</code></pre></div>
+<p><img src="./Don&#39;t call me Moran_files/unnamed-chunk-5-1.png" width="672"></p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-target="#rcode-643E0F3624" aria-expanded="false" aria-controls="rcode-643E0F3624"><span>Code</span></button></div></div><div class="collapse r-code-collapse" id="rcode-643E0F3624"><pre class="r"><code class="hljs">st_join(bothRegressions, tracts19.2) %&gt;% 
+  group_by(Regression, incomeContext) %&gt;%
+  summarize(mean.MAPE = scales::percent(mean(SalePrice.APE, na.rm = <span class="hljs-literal">T</span>))) %&gt;%
+  st_drop_geometry() %&gt;%
+  spread(incomeContext, mean.MAPE) %&gt;%
+  kable(caption = <span class="hljs-string">"Test set MAPE by neighborhood racial context"</span>) %&gt;%
+  kable_styling()</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Test set MAPE by neighborhood racial context
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Regression
+</th>
+<th style="text-align:left;">
+High Income
+</th>
+<th style="text-align:left;">
+Low Income
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Baseline Regression
+</td>
+<td style="text-align:left;">
+27%
+</td>
+<td style="text-align:left;">
+38%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Neighborhood Effects
+</td>
+<td style="text-align:left;">
+26%
+</td>
+<td style="text-align:left;">
+23%
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="section-conclusion" class="section level1">
+<div name="Conclusion" data-unique="Conclusion"></div><h1>Conclusion</h1>
+<p>Realistically and putting aside the role of “eager data science team competing to work with a major corporation,” while the basic structure of the model is sound, there significant issues with the model’s performance. An MAPE of around 30% is severe in the context of predicting real estate prices, and would often mean a six figure window of uncertainty. However, it was interesting to take part in the process of building a model that is structurally similar to the way a model in the real world would be constructed.</p>
+<p>Geographically, Boulder City had highest concentration of errors. Higher density development or the unique real estate environment created by a large University’s presence may have caused the relationships between the variables and housing prices to deviate from the previously established patterns on which the model had based its predictions. The rest of the municipalities generally had more accurate predictions. The model we created was certainly improved by the addition of geographic features. While many variables from the given dataset were also central to the model’s predictions, variables such as distance to the nearest park and the mean distance to the five closest trailheads performed well.</p>
+<p>Variables used as predictors</p>
+<p>``{r Summary Statistics of Predictors used in the model,echo=FALSE} InterCh.va &lt;-<br>
+studentData %&gt;% select(“Section.Num” = section_num, “Quality.Code” = qualityCode, TotalFinishedSF, Age, Ac, Heating, “Total.Bath” = TotalBath, “Rooms.No.bath” = nbrRoomsNobath)%&gt;% st_drop_geometry()</p>
+<p>SpacialStruct.va &lt;- studentData %&gt;% select(“Med.Income” = med_inc, “White.Pop” = white_pop, “Pop.Den” = pop_den, “Pvty.Pop” = pvty_pop) %&gt;% st_drop_geometry()</p>
+<p>Amen.va &lt;- studentData %&gt;% select(“LandMark.Dist” = landmark_dist, “Private.Dist” = privat_dist, “Trailhead.Dist” = head_nn5, “Park.Dist” = park_nn1, “PGCount.500m” = pgcount500m, “Flood.Dist” = flood_dist)%&gt;% st_drop_geometry()</p>
+<p>stargazer(InterCh.va, type = “text”, title = “Statistic Summary: Internal Characteristic Variables”, digits = 0, notes = c(“Section.Num: Building section number by uses”, “Quality.Code: Quality as determined by our appraisal staff”, “TotalFinishedSF: Total number of finished square feet”, “Age: Age of the structure”, “Ac: Air Conditioner Type (Lower N value due to absence of AC units)”, “Heating: Heating System Type (Lower N value due to absence of Heating units)”, “Total.Bath: Number of Bathrooms”, “Rooms.No.Bath: Number of Rooms that are not bathrooms”))</p>
+<p>stargazer(Amen.va, type = “text”, title = “Statistic Summary: Amenities”, digits = 0, notes = c(“Unit: Meters Source: Boulder County Open Data Portal”, “LandMark.Dist: Distance to the nearest landmark”, “Private.Dist: Distance to the nearest private school”, “Trailhead.Dist: Distance to the nearest trail head”, “Park.Dist: Distance to the nearest park”, “PGCount.500: Playground count in 500m radius of a sold house”, “Flood.Dist: Distance to the nearest Floodplain”))</p>
+<p>stargazer(SpacialStruct.va, type = “text”, title = “Statistic Summary: Spacial Structure”, digits = 0, notes = c(“Source: One-year American Community Survey”, “Data collected by census tracts”, “Med.Income: Medium Family Income”, “White.Pop: Population identified as ‘white’”, “Pop.Den: Population density by census tract”, “Pvty.Pop: Population living in poverty”, “Some variables are catagorical. In these variables below”, “‘1’ indicates the sold house exists within the municipality,”, “0 means non-exsiting:”, "Loui\_dummy, Ward\_dummy, Jame\_dummy, Nede\_dummy,Boul\_dummy“,”Erie\_dummy,Lafa\_dummy,Long\_dummy,“,”representing Louisvelle, Ward, Jamestown, Nederland, Boulder, Erie,“,”Lafayette, and Longmont, respectively")) ```</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("section-TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#section-TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+</div>
+  </div>
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
