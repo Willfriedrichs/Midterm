@@ -17,9 +17,11 @@ output:
 
 Zillow's housing market predictions are an integral part of its business model, helping the company achieve a greater understanding of how the market will value properties. Our team is confident that through our geospatial machine learning-based model that considers not only attributes of homes, but local factors as well, we can improve Zillow's house price predictions for the Boulder County study area and provide a template which can be adapted to other localities.
 
-This project outlines and analyzes the process by which we created our model in four broad stages: data gathering, feature creation, multivariate regression modeling, and prediction generation. We present these stages sequentially, though the ordering does not necessarily reflect the order in which parts of the model were constructed.
+This project outlines and analyzes the process by which we created our model in three broad stages: data gathering, regression modeling, and finally, prediction and validation. Our process involves splitting our total dataset into a training set consisting of 75% of the points, and a testing set consisting of the other 25%. These data are used to create our model, which predicts the 100 observations of the challenge set.
 
-Along with written analysis, plots, and tables, the R code that produces the model is presented in the document in chunks. The chunk below, for example, loads 17 libraries for use later, helps set up the generation of the r markdown file, gives access to online resources helpful to our analysis, and sets up a color scheme to be used for data visualization.
+_We found_
+
+_The chunk below, for example, loads 17 libraries for use later, helps set up the generation of the r markdown file, gives access to online resources helpful to our analysis, and sets up a color scheme to be used for data visualization. I'll use this for comments_
 
 ```{r The Setup, message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -73,11 +75,11 @@ palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
 ```
 
 
-# Project Data
+# Data Gathering
 
 ### 2019 ACS Data
 
-The data gathering process begins by accessing tract-level geography, population, and demographic data from the US Government Census API. The data uses American Community Survey results for 2019. Variables of interest are isolated and wrangled to create features required for the analysis.
+The data gathering process begins by accessing tract-level geography, population, and demographic data from the 2019 American Community Survey (ACS). Variables of interest are isolated and wrangled to create features required for the analysis.
 
 ```{r ACS Data, results = FALSE, message=FALSE,warning=FALSE}
 varlist_2019 <- load_variables(2019, "acs5", cache = TRUE)
@@ -113,9 +115,9 @@ tracts19 <- get_acs(geography = "tract",
 
 ### Primary Training Dataset: Housing Data
 
-The primary training dataset provides information on a variety of features associated with houses, along with house prices. Some of the houses have prices listed, while others do not. After other variables are added to the dataset for each house, OLS regression uses houses with price information to create our model, which is a formula that can produce price from those oteher variables. 
+The housing data, provided as part of the project requirements, provides housing prices along with a variety of features associated with houses. After other variables are added to the dataset, we have the features we need to create our model.
 
-Given the original primary dataset, we wrangled and joined ACS tract-based demographic data that we theorized could predict housing prices. Each house is ascribed the demographic variables associated with its tract.
+We then joined ACS demographic data that we theorized could predict housing prices. Each house is ascribed the demographic variables associated with the tract in which it is located.
 
 ```{r Project Data, results=FALSE, warning =FALSE}
 # This loads all the data into "studentData".
@@ -145,7 +147,7 @@ BoulderMuni_Boundary <-
 
 ### Municipalities
 
-Boulder County and the boundaries of the municipalities within are drawn from open-source geometry files. The map below displays the sale price of homes as raster data, superimposed onto Boulder County and its 10 municipalities. 
+Boulder County and the boundaries of the municipalities within are drawn from open-source geometry files. Fig. 1 below displays the sale price of homes as raster data, superimposed onto Boulder County and its 10 municipalities.
 
 ```{r Project Data Map, Message = FALSE, warning = FALSE}
 #Map of Boulder County with Housing Sales Price and municipal boundary
@@ -167,7 +169,7 @@ House_in_muni_boundary <- st_intersection(studentData, BoulderMuni_Boundary) %>%
 
 ```
 
-Table 1, below, summarizes key indicators by municipality. Each variable represents the mean values ascribed to homes in the municipality. For example, total population represents not the population of the municipality, but the mean tract population ascribed to each house. The table reveals that the price is strongly related to municipality. 
+Table 1, below summarizes key indicators by municipality. Each variable represents the mean values ascribed to homes in the municipality. For example, poverty rate represents not the poverty rate of the municipality, but the poverty rate ascribed to each house in that municipality. While the rates are unweighted averages, we conclude that house price is strongly related to municipality. Boulder City consistently has the highest housing prices, a trend that we felt should be reflected in our model.
 
 ```{r Project Data Table}
 
@@ -222,15 +224,11 @@ studentData$Lyon_dummy[is.na(studentData$Lyon_dummy)] <- 0
 studentData$Supe_dummy[is.na(studentData$Supe_dummy)] <- 0
 ```
 
-### Parks, Landmarks, and Trailheads
+### Parks, Landmarks, and Trail Heads
 
-The Boulder area is rich in natural beauty and outdoor activities. We thought it likely that home buyers might place a premium on proximity to locations like parks, natural landmarks, and trailheads. Thus, we incorporate several variables related to this concept into our model.
+The Boulder area is rich in natural beauty and outdoor activities. We thought it likely that home buyers might place a premium on proximity to locations like parks, natural landmarks, and Trail Heads, and engineered features accordingly.
 
-For parks, we downloaded a polygon of green space (or park area) in Boulder County, and created three variables based on each home's "nearest neighbors". One variable represented the shortest distance between a home and green space, another represented the mean of the distances to the two nearest areas of green space, and the third took the mean distances to the three nearest green spaces. Our fourth variable was created by the number of park centroids within a 500m buffer of each home. 
-
-A map of trail heads produced a similar set of variables, however five were created by nearest neighbors analysis rather than three, and a 1000m buffer was used for the last variable rather than a 500m buffer.
-
-For landmarks, a single variable was added, expressing the distance between the home and the nearest landmark.
+For parks, we downloaded a polygon of park area in Boulder County, and created three variables based on each home's "nearest neighbors". One variable represented the shortest distance between a home and park space, another represented the mean of the distances to the two nearest areas of park space, and the third took the mean distances to the three nearest park spaces. Our fourth variable was created by the number of park centroids within a 500m buffer of each home. A map of trail heads produced a similar set of variables. A 1000m buffer was used for the last variable rather than a 500m buffer because trail heads are disproportionately accessed by cars. For landmarks, a single variable was added, expressing the distance between the home and the nearest landmark.
 
 ```{r Parks & Landmarks, results=FALSE, warning=FALSE}
 # Load Park data
@@ -315,11 +313,11 @@ studentData <-
 
 ### Playgrounds, Schools, Flood Plains
 
-Additional variables to be considered by the model come from proximity to playgrounds, schools, and flood plains. Playgrounds are important amenities for families with young children, and may increase land value and be associated with higher housing prices. Our playground indicator reflects the number of playgrounds within a 500m radius of a house.
+Additional variables to be considered by the model come from proximity to playgrounds, schools, and floodplains. Playgrounds are important amenities for families with young children which we theorize is a large portion of the home buying contingency.  Our playground indicator reflects the number of playgrounds within a 500m radius of the house.  
 
-Similarly, a greater number of nearby schools may reflect higher house prices as well. Our school indicator, like the playground indicator, is based on a 500m radius of a house in the dataset. Several variables are also created by a nearest neighbors analysis of specifically private schools. 
+Similarly, we know that availability of quality schools contributes to higher house prices.  Though no school quality data is readily available for Boulder county we use a 500m radius indicator as a proxy. We also engineered features related to private schools using nearest neighbor function.  
 
-Finally, distance to floodplain is added because of the potential connection between risky proximity to floodable areas and disadvantaged areas. This is simply represented by the distance between a given home and the floodplain.
+Finally, distance to the floodplain is added because of the potential connection between risky proximity to floodable areas and disadvantaged areas. We use a distance between a given home and the floodplain as a variable in our model. However, the model can benefit from a more granular, risk-management feature related to flooding.  If similar analysis is replicated in a different locality we recommend checking insurance databases for availability of this data.
 
 ```{r Playgrounds & Schools, results=FALSE, warning=FALSE}
 #Loading Playground Locations
@@ -399,13 +397,13 @@ cleanData$Ac[(cleanData$Ac)== NA] <- 0
 cleanData$Heating[(cleanData$Heating) == NA] <- 0
 ```
 
-# The Model: Regression and Cross-Validation
+# Predictions and Validation
 
 ### Preparation for machine learning and regression model
 
-The model creates coefficients for several of the previously mentioned variables along with an additional constant value. To make a price prediction for a home, the values of the home's variables (square footage, population of the census tract, distance to landmarks, etc.) are multiplied by the coefficients created by the model, and the sum of the results produces a house price. Our OLS model must first look at the relationships in the testing set data, where price is known, so that it can optimize the coefficients and produce the best possible model. 
+The model creates coefficients for several of the previously mentioned variables along with an additional constant value. To make a price prediction for a home, the values of the home's variables (square footage, population of the census tract, distance to landmarks, etc.) are multiplied by the coefficients created by the model, and the sum of the results produces a house price. Our OLS model must first look at the relationships in the training set data so that it can optimize the coefficients and produce the best possible model. 
 
-To test our model, we use a 75/25 split of the testing set data. This means that 75% of our model will be trained on, and 25% of the model will be used to make final predictions of house price. Since we already know the price of the points we are testing, we get a sense of the accuracy of our model. 
+To test our model, we use a 75/25 split of the data. This means that 75% of our model will be trained on, and 25% of the model will be tested on. Since we already know the price of the points we are testing, we get a sense of the accuracy of our model before we make our predictions for the challenge set.
 
 ```{r Train & Test, results = FALSE, warning=FALSE}
 # The test data only includes rows comprising the test set.
@@ -453,23 +451,23 @@ train.Data.clean <-
          privat_dist)
 ```
 
+Fig. 2 shows a graph of the relationship between Housing Price and the distance to the single nearest trail head neighbor.
 
-Below is a graph of the relationship between Housing Sale Price and the distance to the single nearest trailhead neighbor.
 ```{r Trailheads, warning = FALSE, echo=FALSE}
 # This function here attempts to fit a linear model to
 # the relationship between "testData" variables.
 ggplot(data = train.Data, aes(head_nn5, price)) +
        geom_point(size = .5) + 
        geom_smooth(method = "lm")+
-  labs(title = "Relationship between Housing Sale Price and the Average Distance to the Nearest Five Trail Heads", x = "Distance (m)", y = "Sale Price ($)",caption = "Fig. 2")+
+  labs(title = "Relationship between Housing Price and the Average Distance to the Nearest Five Trail Heads", x = "Distance (m)", y = "Sale Price ($)",caption = "Fig. 2")+
   plotTheme()
 ```
 
 ### Correlation & Test Signifcance
 
-Prior to the the regression set-up described in the previous section, the relationships across all the variables are evaluated to test the levels of significance of their relationship with each other. This process determines if variables are colinear, meaning that two or more variables give such similar information that to include all of them would be redundant. In Fig.1, Pearson Correlation is imputed: a strong orange shows strong positive correlation and a strong green shows strong negative correlate between selected variables. 
+Prior to the the regression, the relationships across all the variables are evaluated to test the levels of significance of their relationship with each other. This process determines if variables are colinear, meaning that two or more variables give such similar information that to include all of them would be redundant. In Fig. 3, Pearson Correlation is imputed: a strong orange shows strong positive correlation and a strong green shows strong negative correlation between selected variables. 
 
-Note that price is strongly correlated with section number, quality code, total finished square footage, number of bathrooms, being in the city of Boulder (or not), and count of playgrounds within 500 meter radius. 
+Note that price is strongly correlated with section number, quality code, total finished square footage, number of bathrooms, location within or not within Boulder City, and count of playgrounds within a 500 meter radius. 
 
 ```{r Correllation & Test Signicance, warning=FALSE, echo = FALSE}
 
@@ -483,11 +481,9 @@ ggcorrplot(
   labs(title = "Correlation across numeric variables",caption = "Fig 3") 
 ```
 
-Below is a in-depth look of Fig 1, presenting correlations between price and four selected variables. There is a noticeably strong positive correlation between price and total square footage. Negative correlations between price and the distances to landmarks and private schools are also clear.
+Below is a in-depth look of Fig 4, presenting correlations between price and four selected variables. There is a noticeably strong positive correlation between price and total square footage. Negative correlations are also clear between price and the distances to landmarks and private schools.
 
-Below the scatterplots, the summary of a linear model with seven variables, their significance, and other related information is listed.
-
-```{r Scatter Plots, echo=FALSE,message=FALSE}
+```{r Scatter Plots, echo=FALSE, message=FALSE}
 #Scatter plots between price and variables
 cleanData %>%
   select(price,"Playground Count in 500m" = pgcount500m, 
@@ -519,12 +515,13 @@ summary(testSignificance)
 
 ### 100-fold validation
 
-Cross-validation is the next step. Through 100-fold cross-validation, 100 random groupings of test data are used to train the model. The results of this cross-validation determine whether the model is appropriate to generalize when we run our model to predict the remaining 25% of known house prices, and finally, when we predict unknown house prices with 100% of the testing set. Of all the data gathered and organized into potential predictive variables, only 27 are tested via this method.
+100-fold validation
+The next step of the project involves cross-validation using k-folds.  We chose 100-fold cross-validation which involves randomly partitioning the training set into 100 groupings.  We trained the model using 99 groupings and checked the errors on the remaining group. During the research process, we tested many combinations of variables, but this combination seemed reasonable and was particularly successful in making predictions.  The result shows approximately 70% of the variance is explained by the model (depending on the iteration).  Using this result we proceed to applying our predictions to the challenge set.
 
-During the research process, we tested many combinations of variables, but this combination seemed reasonable and was particularly successful in making predictions. 
+Table 3. displays the p-value, a “score” that describes how well each variable performs in the prediction of house price across all of the folds of the 100-fold cross validation. A p-value less than 0.05 for a variable indicates that variable is significant. The R-squared value displayed below gives a percentage of how much of the total error our model accounts for.
 
 
-```{r P-Value Table, results=FALSE}
+```{r P-Value Table}
 
 # Multivariate regression 
 reg1 <- lm(price ~ ., data = train.Data.1 %>% 
@@ -612,10 +609,9 @@ regression.100foldcv
 
 ```
 
-
 ### MAE Histogram
 
-While we are proud of our model's ability to make predictions, it of course cannot be perfect. The following histogram displays the distribution of the Mean Average Error (MAE) for each of the folds of the 100-fold cross-validation exercise. MAE measures the magnitude of the average difference between the home price we predicted, and the actual price of the home. In most of the folds, the predictions were around $200,000 off-base. 
+While we are proud of our model's ability to make predictions, it of course cannot be perfect. The following histogram displays the distribution of the Mean Average Error (MAE) for each of the folds of the 100-fold cross-validation exercise. MAE measures the magnitude of the average difference between the predicted price and the actual price of the home. In most of the folds, the predictions were around $200,000 off-base on average. 
 
 ```{r MAE Histogram, results=FALSE,warning=FALSE,message=FALSE}
 #MAE Histogram
@@ -630,11 +626,11 @@ ggplot(regression.100foldcv$resample, aes(x=MAE))+
 
 ```
 
-# Final Prediction of remaining 25% of Data
+# Test Set Prediction
 
-After a set of regression coefficients have been produced and tested by 100-folds validation, the model is used to predict price for the 25% of points with price data that remain unexamined. The results created by running this model are displayed below.
+After a set of regression coefficients have been produced and tested by 100-fold validation, the model is used to predict price for testing set. The results created by running this model are displayed by table 4.
 
-The resulting 32% Mean Absolute Percentage Error indicates that the model created a decent output. Predictions were, on average, within one third of the value of the full price. This bodes well for the potential of the model to predict prices for the set of home prices lacking set values. 
+The resulting Mean Absolute Percentage Error indicates that the model created a decent output. Predictions were, on average, within 30% of the value of the price. This bodes well for the potential of the model to predict mostly reasonable prices for the challenge set. 
 
 ```{r MAE and table, echo=FALSE}
 #Run model on unpredicted dataset
@@ -668,7 +664,9 @@ kable(MeanAb.table, digit = 2,
 
 ### Plot Predictions
 
-This plot compares predicted price to actual price. The predicted price forms a straight line, which expected because of the linear nature of the equation created by the model. The logarithmic pattern here suggests that a non-linear model might create a more accurate set of predictions. Future projects aiming to predict house prices with home-specific and location based predictors may find success exploring logarithmic and other nonlinear functions.
+Fig. 6 compares predicted price to actual price. The logarithmic relationship shows that for lower prices, our model slightly under-predicts observed prices. Mid-level prices tend to be over-predicted, but the highest _edit_
+
+Fig. 7, showing absolute errors between observed and predicted housing price across Boulder County, demonstrates that our model generally has consistently low absolute error.
 
 ```{r Plot Predictions, message=FALSE, warning = FALSE}
 #Plot of predicted prices as a function of observed price
@@ -735,7 +733,10 @@ ggplot(data = train.Data.2.lag, aes(lagPriceError, SalePrice.Error)) +
 
 ### Moran's I
 
-need p value?>
+Moran's I is a measure that assess  spatial autocorrelation: specifically, whether values are spatially clustered, random, or dispersed. The Moran's I of our error is calculated below, and compared with the frequency of 999 randomly permutated I. 
+
+A I approaching -1 indicates greater dispersal, while an I approaching 1 indicates clustering. Random spatial distribution is indicated by a I of 0. 
+Because the spatial distribution of the randomly permutated I is random, its Moran's I is very close to zero. The observed Moran's I is higher than all 999 of the permutated Is, confirming the existence of a spatial autocorrelation. 
 
 ```{r Morans I, echo = FALSE, warning = FALSE}
 #Moran's I
@@ -759,6 +760,8 @@ ggplot(as.data.frame(moranTest$res[c(1:999)]), aes(moranTest$res[c(1:999)])) +
 ### Predicted Results by Municipality
 
 The map below shows predicted values for the entire dataset overlaid onto a map of municipalities. According to the model, most of the municipalities are predicted to have houses at a range of prices. The City of Boulder is interestingly more clustered, with higher priced houses in the north and comparatively lower priced houses in the south. 
+
+_edit_
 
 ```{r Prediction on Challenge Set, echo=FALSE, warning=FALSE, message=FALSE}
 #Map of predicted value on both == 1 and == 0
@@ -791,7 +794,7 @@ ggplot()+
 
 ```
 
-Within the City of Boulder itself, the greatest error was associated with the central tracts
+We used tracts to summarize our absolute percentage error to examine spatial patterns across Boulder County. As shown in figure X, some tracts lack datapoints, and are gray. There is not a clear, visually apparent pattern of error across tracts, other than that our model struggled more in the Longmont area. In our graphical analysis of census tracts in figure X, there is no evident correlation between mean absolute percentage error and mean housing prices either. This shows that census tracts do not create generalized error.
 
 ```{r Muni With Error}
 #Census Track with Error
@@ -819,7 +822,7 @@ ggplot()+
 ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
   geom_point(size = 1.5,colour = "orange") + 
   labs(x = "Mean Housing Prices",y = "Mean Absolute Percentage Errors", 
-       title = "Absolute Percentage Error as sa function of Mean Housing Prices by Municipalities",
+       title = "Absolute Percentage Error as a function of Mean Housing Prices by Municipalities",
        subtitle = "Boulder County, CO")+
   theme(plot.title = element_text(size = 20),
         plot.subtitle = element_text(size = 15),
@@ -827,10 +830,7 @@ ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
         axis.title.y = element_text(size = 15),
         axis.line = element_line(colour = "grey50", size = 1),
         panel.grid.major = element_line(linetype = "dotted",size = 1))
-```
 
-#Accounting Neighborhood Effect
-```{r}
 left_join(
   st_drop_geometry(train.Data.2) %>%
     group_by(GEOID) %>%
@@ -840,9 +840,10 @@ left_join(
                         train.Data.2)) %>%
     st_drop_geometry %>%
     group_by(GEOID) %>%
-      summarize(meanPrediction = mean(predict.fe))) %>%
-      kable() %>% kable_styling()
+      summarize(meanPrediction = mean(predict.fe)))
 ```
+
+If we consider census tracts as neighborhoods, we can account for neighborhood effects in our regression model. Using this logic, we add census tract GEOID as one of our indicators along with the previously included variables. 
 
 ```{r}
 reg.nhood <- lm(price ~ ., data = as.data.frame(train.Data.1) %>% 
@@ -896,6 +897,10 @@ st_drop_geometry(bothRegressions) %>%
     kable()%>% kable_styling()
 ```
 
+Table X compares the absolute error between the baseline regression and a version of that regression that considers neighborhood effects. Based on measures of absolute error and APE, these regressions are very similar.
+
+Figure X maps the relationship between predicted and actual prices for the house prices in the test set. The orange line represents a function in which predicted values perfectly represent the observed values. The green lines represent the regression of the two models. The similarities between the baseline version of the plot and the plot considering neighborhood effects show that the neighborhood effects do not prediction accuracy much. 
+
 ```{r}
 bothRegressions %>%
   select(SalePrice.Predict, price, Regression) %>%
@@ -910,6 +915,9 @@ bothRegressions %>%
        subtitle="Orange line represents a perfect prediction; Green line represents prediction") +
   plotTheme()
 ```
+
+The maps of Fig. X present geographic representations of demographics in Boulder County. These maps provide a framework for understanding how demographic variables affect sales price, or potential clustering. Every tract in Boulder County is majority white based on 2019 ACS data. For our map of median income across Boulder County census tracts, tracts are designated as "high income" (greater than the county median of $40450), or "low income" (lower than the county median). 
+
 ```{r}
 tracts19.2 <- 
   tracts19%>%
@@ -927,6 +935,9 @@ grid.arrange(ncol = 2,
     labs(title = "Income Context") +
     mapTheme() + theme(legend.position="bottom"))
 ```
+
+We examine income as a potential neighborhood effect. The result is a lower MAPE in the low income area than in the high income area. This indicates that at least in low income areas, neighborhood effects do account for the clustering of housing prices. 
+
 ```{r}
 st_join(bothRegressions, tracts19.2) %>% 
   group_by(Regression, incomeContext) %>%
@@ -938,15 +949,15 @@ st_join(bothRegressions, tracts19.2) %>%
 ```
 # Conclusion
 
-Realistically and putting aside the role of “eager data science team competing to work with a major corporation,” while the basic structure of the model is sound, there significant issues with the model’s performance. An MAPE of around 30% is severe in the context of predicting real estate prices, and would often mean a six figure window of uncertainty. However, it was interesting to take part in the process of building a model that is structurally similar to the way a model in the real world would be constructed. 
-
-Geographically, Boulder City had highest concentration of errors. Higher density development or the unique real estate environment created by a large University’s presence may have caused the relationships between the variables and housing prices to deviate from the previously established patterns on which the model had based its predictions. The rest of the municipalities generally had more accurate predictions.
 The model we created was certainly improved by the addition of geographic features. While many variables from the given dataset were also central to the model’s predictions, variables such as distance to the nearest park and the mean distance to the five closest trailheads performed well. 
+_more on which variables were important_
+
+Throughout the cyclical iterations of the project’s development our team faced difficult decisions related to acceptance and rejection of given variables.  Ultimately, a mean-absolute-percent-error (MAPE) of around 30% allows for a modest level of confidence in our model.  Given more research and an enhanced qualitative context we are inclined to think that the model has room for improvement.  Geographically, Boulder City had the highest concentration of errors. This error may have been caused by higher density development or the unique real estate environment created by the presence of a large University in the area. The rest of the municipalities had generally more accurate predictions. Overall, the model we created was certainly improved by the addition of geographic features.
 
 Variables used as predictors
 
 ```{r Summary Statistics of Predictors used in the model,echo=FALSE}
-InterCh.va <-   
+InterCh.va <-
 studentData %>%
    select("Section.Num" = section_num,
           "Quality.Code" = qualityCode,
