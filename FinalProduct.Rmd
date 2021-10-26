@@ -81,7 +81,7 @@ palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
 
 The data gathering process begins by accessing tract-level geography, population, and demographic data from the 2019 American Community Survey (ACS). Variables of interest are isolated and wrangled to create features required for the analysis.
 
-```{r ACS Data, results = FALSE, message=FALSE,warning=FALSE}
+```{r ACS Data, results = FALSE, message=FALSE,warning=FALSE, cache = FALSE}
 varlist_2019 <- load_variables(2019, "acs5", cache = TRUE)
 
 census_api_key("94efffd19b56ad527e379faea1653ee74dc3de4a",overwrite = TRUE)
@@ -155,7 +155,7 @@ ggplot()+
   geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
   geom_sf(data = BoulderMuni_Boundary, aes(fill = Municipality, alpha=0.5),colour = "white") +
   geom_sf(data = studentData, aes(colour = q5(price)),size=.85)+
-  labs(title = "Housing Sales Under Municipalities", subtitle = "Boulder County, CO", caption = "Fig 1")+
+  labs(title = "Housing Sales Under Municipalities", subtitle = "Boulder County, CO", caption = "Fig. 1")+
   scale_colour_manual(values = palette5,
                       labels=qbr(studentData,"price"),
                       name = "Sale Price") +
@@ -478,7 +478,7 @@ ggcorrplot(
   colors = c("#25CB10", "white", "#FA7800"),
   type="lower",
   insig = "blank") +  
-  labs(title = "Correlation across numeric variables",caption = "Fig 3") 
+  labs(title = "Correlation across numeric variables",caption = "Fig. 3") 
 ```
 
 Below is a in-depth look of Fig 4, presenting correlations between price and four selected variables. There is a noticeably strong positive correlation between price and total square footage. Negative correlations are also clear between price and the distances to landmarks and private schools.
@@ -493,7 +493,7 @@ gather(Variable, Value, -price) %>%
   ggplot(aes(Value, price)) +
   geom_point(size = .5) + geom_smooth(method = "lm", se=F, colour = "#FA7800") +
   facet_wrap(~Variable, ncol = 3, scales = "free") +
-  labs(title = "Price as a function of continuous variables", caption = "Fig 4") +
+  labs(title = "Price as a function of continuous variables", caption = "Fig. 4") +
   plotTheme()
 
 # This function allows for the plug-in of variables from "studentData".
@@ -515,7 +515,6 @@ summary(testSignificance)
 
 ### 100-fold validation
 
-100-fold validation
 The next step of the project involves cross-validation using k-folds.  We chose 100-fold cross-validation which involves randomly partitioning the training set into 100 groupings.  We trained the model using 99 groupings and checked the errors on the remaining group. During the research process, we tested many combinations of variables, but this combination seemed reasonable and was particularly successful in making predictions.  The result shows approximately 70% of the variance is explained by the model (depending on the iteration).  Using this result we proceed to applying our predictions to the challenge set.
 
 Table 3. displays the p-value, a “score” that describes how well each variable performs in the prediction of house price across all of the folds of the 100-fold cross validation. A p-value less than 0.05 for a variable indicates that variable is significant. The R-squared value displayed below gives a percentage of how much of the total error our model accounts for.
@@ -552,20 +551,22 @@ reg1 <- lm(price ~ ., data = train.Data.1 %>%
 
 
 
-stargazer(reg1, type = "html", title = "Table 2. Variation of selected variable and Error Control of the regression model",out="table1.html",dep.var.labels = "Housing Price")
+stargazer(reg1, type = "latex", title = "Table 3. Variation of selected variable and error control of the regression model",out="table1.html",dep.var.labels = "Housing Price")
 
+```
+
+```{r}
 reg1.tidy <-
   tidy(reg1,
        "Section Number" = section_num)
 
-kable(reg1.tidy, digits = 2, caption = "Table 3. Regression Model Predicting Variation on Housing Sales Price", 
+kable(reg1.tidy, digits = 2, caption = "Table 4. Regression model predicting variation on housing prices", 
       col.names = c("Predictor","Estimate","Standard Error", "T-Value","P-Value")
       ) %>%
   kable_styling()
 ```      
        
-Table 3. displays the p-value, a "score" that describes how well each variable performs in the prediction of house price across all of the folds of the 100-fold cross validation. A P-value less than 0.05 for a variable indicates that variable is significant. The R-squared value displayed in output code below the table gives a percentage of how much of the total error our model can account for. 
-       
+    
 
 ```{r 100 k-fold}
 # This sets up k-fold cross-validation.
@@ -605,7 +606,7 @@ regression.100foldcv <-
 # The resulting Mean Absolute Error (MAE) of running this line tells us how
 # successful our model is at predicting unknown data. 
 
-regression.100foldcv
+data = regression.100foldcv
 
 ```
 
@@ -621,14 +622,14 @@ ggplot(regression.100foldcv$resample, aes(x=MAE))+
   geom_histogram(colour = "white",fill="orange")+
   labs(title="Distribution of MAE",x="Mean Absolute Error", y = "Count",
        subtitle = "k-fold cross-validation; k = 100",
-       caption = "Figure 3")+
+       caption = "Fig. 5")+
   theme_apa()
 
 ```
 
 # Test Set Prediction
 
-After a set of regression coefficients have been produced and tested by 100-fold validation, the model is used to predict price for testing set. The results created by running this model are displayed by table 4.
+After a set of regression coefficients have been produced and tested by 100-fold validation, the model is used to predict price for testing set. The results created by running this model are displayed by Table 6.
 
 The resulting Mean Absolute Percentage Error indicates that the model created a decent output. Predictions were, on average, within 30% of the value of the price. This bodes well for the potential of the model to predict mostly reasonable prices for the challenge set. 
 
@@ -654,7 +655,7 @@ MeanAb.table <- data.frame("Model"= Prediction.Variation,"Mean Absolute Error ($
                            "Mean Absolute Percentage Error (%)" = MeanAPE)
 
 kable(MeanAb.table, digit = 2,
-      caption = "Table 4. Mean Absolute Error and Absolute
+      caption = "Table 6. Mean Absolute Error and Absolute
       Percentage Error on the Prediction Trial",
       col.names = c("Regression",
                     "Mean Absolute Error ($)",
@@ -752,7 +753,7 @@ ggplot(as.data.frame(moranTest$res[c(1:999)]), aes(moranTest$res[c(1:999)])) +
        subtitle= "Observed Moran's I in orange",
        x="Moran's I",
        y="Count",
-       caption = "Fig 7") +
+       caption = "Fig 8") +
   plotTheme()
 
 ```
@@ -789,7 +790,7 @@ ggplot()+
                       name = "Predicted Sale Price")+
   labs(title = "Predicted Sale Prices in Boulder County",
        subtitle = "Bouolder, Colorado ($)",
-       caption = "Fig 8")+
+       caption = "Fig 9")+
   mapTheme()
 
 ```
@@ -815,6 +816,7 @@ ggplot()+
   geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = "black")+
   scale_fill_gradient(low = "white", high = "brown",
     name = "Absolute Percentage Error" ) +
+  labs(title = "Mean Absolute Error Aggregated Based on Census Tracts", caption = "Fig. 10", subtitle = "Boulder County, Colorado")
   mapTheme()
 
 #scatterplot plot of MAPE by neighborhood as a function of mean price by neighborhood.
@@ -823,7 +825,7 @@ ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
   geom_point(size = 1.5,colour = "orange") + 
   labs(x = "Mean Housing Prices",y = "Mean Absolute Percentage Errors", 
        title = "Absolute Percentage Error as a function of Mean Housing Prices by Municipalities",
-       subtitle = "Boulder County, CO")+
+       subtitle = "Boulder County, Colorado", caption = "Fig. 11")+
   theme(plot.title = element_text(size = 20),
         plot.subtitle = element_text(size = 15),
         axis.title.x = element_text(size = 15),
@@ -881,6 +883,12 @@ boulder.test.nhood <-
          SalePrice.APE = (abs(SalePrice.Predict- price)) / price)
 
 ```
+
+
+Table 7 compares the absolute error between the baseline regression and a version of that regression that considers neighborhood effects. Based on measures of absolute error and APE, these regressions are very similar.
+
+Figure 12 maps the relationship between predicted and actual prices for the house prices in the test set. The orange line represents a function in which predicted values perfectly represent the observed values. The green lines represent the regression of the two models. The similarities between the baseline version of the plot and the plot considering neighborhood effects show that the neighborhood effects do not prediction accuracy much. 
+
 ```{r}
 bothRegressions <- 
   rbind(select(train.Data.2, starts_with("SalePrice"), Regression, GEOID,price) %>%
@@ -894,12 +902,10 @@ st_drop_geometry(bothRegressions) %>%
   group_by(Regression, Variable) %>%
     summarize(meanValue = mean(Value, na.rm = T)) %>%
     spread(Variable, meanValue) %>%
-    kable()%>% kable_styling()
+    kable(caption = "Table 7")%>% kable_styling()
 ```
 
-Table X compares the absolute error between the baseline regression and a version of that regression that considers neighborhood effects. Based on measures of absolute error and APE, these regressions are very similar.
 
-Figure X maps the relationship between predicted and actual prices for the house prices in the test set. The orange line represents a function in which predicted values perfectly represent the observed values. The green lines represent the regression of the two models. The similarities between the baseline version of the plot and the plot considering neighborhood effects show that the neighborhood effects do not prediction accuracy much. 
 
 ```{r}
 bothRegressions %>%
@@ -912,11 +918,11 @@ bothRegressions %>%
               method = "lm", se = FALSE, size = 1, colour="#25CB10") +
   facet_wrap(~Regression) +
   labs(title="Predicted sale price as a function of observed price",
-       subtitle="Orange line represents a perfect prediction; Green line represents prediction") +
+       subtitle="Orange line represents a perfect prediction; Green line represents prediction", caption = "Fig. 12") +
   plotTheme()
 ```
 
-The maps of Fig. X present geographic representations of demographics in Boulder County. These maps provide a framework for understanding how demographic variables affect sales price, or potential clustering. Every tract in Boulder County is majority white based on 2019 ACS data. For our map of median income across Boulder County census tracts, tracts are designated as "high income" (greater than the county median of $40450), or "low income" (lower than the county median). 
+The maps of Fig. 13 present geographic representations of demographics in Boulder County. These maps provide a framework for understanding how demographic variables affect sales price, or potential clustering. Every tract in Boulder County is majority white based on 2019 ACS data. For our map of median income across Boulder County census tracts, tracts are designated as "high income" (greater than the county median of $40450), or "low income" (lower than the county median). 
 
 ```{r}
 tracts19.2 <- 
@@ -928,7 +934,7 @@ tracts19.2 <-
 grid.arrange(ncol = 2,
   ggplot() + geom_sf(data = na.omit(tracts19.2), aes(fill = raceContext)) +
     scale_fill_manual(values = c("#25CB10", "#FA7800"), name="Race Context") +
-    labs(title = "Race Context") +
+    labs(title = "Race Context", caption = "Fig 13") +
     mapTheme() + theme(legend.position="bottom"), 
   ggplot() + geom_sf(data = na.omit(tracts19.2), aes(fill = incomeContext)) +
     scale_fill_manual(values = c("#25CB10", "#FA7800"), name="Income Context") +
@@ -936,7 +942,7 @@ grid.arrange(ncol = 2,
     mapTheme() + theme(legend.position="bottom"))
 ```
 
-We examine income as a potential neighborhood effect. The result is a lower MAPE in the low income area than in the high income area. This indicates that at least in low income areas, neighborhood effects do account for the clustering of housing prices. 
+We examine income as a potential neighborhood effect. Table 8 shows a lower MAPE in the low income area than in the high income area. This indicates that at least in low income areas, neighborhood effects do account for the clustering of housing prices. 
 
 ```{r}
 st_join(bothRegressions, tracts19.2) %>% 
@@ -944,7 +950,7 @@ st_join(bothRegressions, tracts19.2) %>%
   summarize(mean.MAPE = scales::percent(mean(SalePrice.APE, na.rm = T))) %>%
   st_drop_geometry() %>%
   spread(incomeContext, mean.MAPE) %>%
-  kable(caption = "Test set MAPE by neighborhood racial context") %>%
+  kable(caption = "Table 8. Test set MAPE by neighborhood racial context") %>%
   kable_styling()
 ```
 # Conclusion
