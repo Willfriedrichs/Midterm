@@ -370,11 +370,13 @@ Schools <-
 Private_School <-
   filter(Schools, startsWith(Type_, "Non-"))
 
+# Create a variable for distance to the nearest school
 studentData <-
   studentData %>% 
   mutate(
   school_nn1 = nn_function(st_c(studentData), st_c(Schools), 1))
 
+# For private schools, create variables for mean distance to the nearest 1 through 5 neighbors
 studentData <-
   studentData %>%
   mutate(
@@ -389,15 +391,14 @@ Floodplain <-
  st_transform('ESRI:102254')%>%
   st_union()
 
+# Add a variable to represent distance to the floodplain
 studentData <-
   studentData %>%
   mutate(flood_dist = st_distance(studentData, Floodplain, by_element=TRUE))
 
 
-# This selects all numeric variables as preparation for the
-# correlation analysis that follows.
-#(also delete the outliar)
-
+# This selects all numeric variables as preparation for the correlation analysis that follows.
+# It also deletes an outlier.
 cleanData <- 
   select_if(st_drop_geometry(studentData), is.numeric) %>%
   select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount))%>%
@@ -409,6 +410,7 @@ studentData.GEOID <-
 cleanData <-
   left_join(cleanData, studentData.GEOID)
 
+# Remove NA values
 cleanData$Ac[(cleanData$Ac)== NA] <- 0
 cleanData$Heating[(cleanData$Heating) == NA] <- 0
 ```
@@ -422,8 +424,7 @@ The model creates coefficients for several of the previously mentioned variables
 To test our model, we use a 75/25 split of the data. This means that 75% of our model will be trained on, and 25% of the model will be tested on. Since we already know the price of the points we are testing, we get a sense of the accuracy of our model before we make our predictions for the challenge set.
 
 ```{r Train & Test, results = FALSE, warning=FALSE}
-# The test data only includes rows comprising the test set.
-# Remove Outliars
+# Remove Outliers
 
 test.Data <- filter(cleanData, toPredict == 1)
 
@@ -500,7 +501,7 @@ ggcorrplot(
 Below is a in-depth look of Fig. 4, presenting correlations between price and four selected variables. There is a noticeably strong positive correlation between price and total square footage. Negative correlations are also clear between price and the distances to landmarks and private schools.
 
 ```{r Scatter Plots, echo=FALSE, message=FALSE}
-#Scatter plots between price and variables
+# Scatter plots between price and variables
 cleanData %>%
   select(price,"Playground Count in 500m" = pgcount500m, 
          "Total Squrefootage" = TotalFinishedSF,"Distance to Landmark (m)" = landmark_dist,
@@ -566,12 +567,13 @@ reg1 <- lm(price ~ ., data = train.Data.1 %>%
                  privat_dist))
 
 
-
+# Create a stargazer table to represent variation of selected variables
 stargazer(reg1, type = "html", title = "Table 3. Variation of selected variable and error control of the regression model",out="table1.html",dep.var.labels = "Housing Price")
 
 ```
 
 ```{r}
+# Display a table with information as to the model's prediction of housing prices based on the 75-point training set
 reg1.tidy <-
   tidy(reg1,
        "Section Number" = section_num)
@@ -650,8 +652,7 @@ After a set of regression coefficients have been produced and tested by 100-fold
 The resulting Mean Absolute Percentage Error indicates that the model created a decent output. Predictions were, on average, within 30% of the value of the price. This bodes well for the potential of the model to predict mostly reasonable prices for the challenge set. 
 
 ```{r MAE and table, echo=FALSE}
-#Run model on unpredicted dataset
-
+# Run model on the 25-point test set
 train.Data.2 <-
   train.Data.2 %>%
   mutate(SalePrice.Predict = predict(reg1, train.Data.2))
@@ -662,7 +663,7 @@ train.Data.2 <-
          SalePrice.AbsError = abs(SalePrice.Predict - price),
         SalePrice.APE = (abs(SalePrice.Predict - price)) / SalePrice.Predict)
 
-#Table of mean absolute error and MAPE
+# Table of mean absolute error and MAPE
 Prediction.Variation <- "Trial 1" 
 MeanAb <- mean(train.Data.2$SalePrice.AbsError,na.rm = T)
 MeanAPE <- mean(train.Data.2$SalePrice.APE, na.rm = T)
