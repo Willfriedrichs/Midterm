@@ -41,6 +41,7 @@ library(ggstance)
 library(rpart)
 library(ggplot2)
 library(stargazer)
+library(viridis)
 
 # set up knitr
 knitr::opts_chunk$set(
@@ -397,6 +398,51 @@ cleanData$Ac[(cleanData$Ac)== NA] <- 0
 cleanData$Heating[(cleanData$Heating) == NA] <- 0
 ```
 
+Fig. 1.2, 1.3, 1.4 map some variables in Boulder County. Most of the parks and trail heads are located outside of the residential areas. Most of the private schools are located in Boulder City and Longment. From a glance, housing sales are very related to private schools.
+
+```{r Maps of Indepdent Variable, message = FALSE, warning=FALSE}
+#Parks
+ggplot() + 
+  geom_sf(data = BoulderCounty_Bundary, fill = "grey60") +
+  stat_density2d(stat = "sf_coordinates",
+                 data = data.frame(st_coordinates(Park)), 
+                 aes(X, Y, fill = ..level.., alpha = ..level..),
+                 size = 0.01, bins = 40, geom = 'polygon') +
+  scale_fill_viridis(name = "Density Level") +
+  scale_alpha(range = c(0.00, 0.35), guide = FALSE) +
+   geom_sf(data = studentData, aes(colour = q5(price)),size=.85)+
+  scale_colour_manual(values = palette5,
+                      labels=qbr(studentData,"price"),
+                      name = "Sale Price") +
+  labs(title = "Density of Parks with Housing Sales", caption = "Fig 1.2") +
+  mapTheme(title_size = 14)
+
+#Trail Head Location
+ggplot() + 
+  geom_sf(data = BoulderCounty_Bundary, fill = "grey60") +
+  geom_sf(data = TrailHead, colour = "purple") +
+   geom_sf(data = studentData, aes(colour = q5(price)),size=.85)+
+  scale_colour_manual(values = palette5,
+                      labels=qbr(studentData,"price"),
+                      name = "Sale Price") +
+  labs(title = "Trail Head Location with Housing Sales", caption = "Fig 1.3") +
+  mapTheme(title_size = 14)
+
+#Private School
+ggplot() + 
+  geom_sf(data = BoulderCounty_Bundary, fill = "grey60") +
+  stat_density2d(stat = "sf_coordinates",
+                 data = data.frame(st_coordinates(Private_School)), 
+                 aes(X, Y, fill = ..level.., alpha = ..level..),
+                 size = 0.01, bins = 40, geom = 'polygon') +
+  scale_fill_viridis(name = "Density Level") +
+  scale_alpha(range = c(0.00, 0.35), guide = FALSE) +
+   geom_sf(data = studentData, aes(colour = q5(price)),size=.85)+
+  scale_colour_manual(values = palette5,
+                      labels=qbr(studentData,"price"),
+                      name = "Sale Price") +
+  labs(title = "Density of Private School with Housing Sales", caption = "Fig 1.4") + mapTheme(title_size = 14)
+```
 # Predictions and Validation
 
 ### Preparation for machine learning and regression model
