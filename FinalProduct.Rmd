@@ -21,9 +21,8 @@ This project outlines and analyzes the process by which we created our model in 
 
 _We found_
 
-_The chunk below, for example, loads 17 libraries for use later, helps set up the generation of the r markdown file, gives access to online resources helpful to our analysis, and sets up a color scheme to be used for data visualization. I'll use this for comments_
-
 ```{r The Setup, message=FALSE, warning=FALSE}
+# load 17 libraries for use later
 library(tidyverse)
 library(tidycensus)
 library(sf)
@@ -61,6 +60,7 @@ source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-L
 # Save q5 and qbr functions for later use
 q5 <- function(variable) {as.factor(ntile(variable, 5))}
 
+# create qbr function
 qbr <- function(df, variable, rnd) {
   if (missing(rnd)) {
     as.character(quantile(round(df[[variable]],0),
@@ -83,11 +83,15 @@ palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
 The data gathering process begins by accessing tract-level geography, population, and demographic data from the 2019 American Community Survey (ACS). Variables of interest are isolated and wrangled to create features required for the analysis.
 
 ```{r ACS Data, results = FALSE, message=FALSE,warning=FALSE, cache = FALSE}
+# Create a lit of all 2019 acs 5-year variables
 varlist_2019 <- load_variables(2019, "acs5", cache = TRUE)
 
+# Census API key
 census_api_key("94efffd19b56ad527e379faea1653ee74dc3de4a",overwrite = TRUE)
 
-tracts19 <- get_acs(geography = "tract",                         
+
+# Grab nine specific tract-level variables using the tidycensus "get_acs" command for each tract in Boulder County in 2019
+tracts19 <- get_acs(geography = "tract",            
                     variables = c("B01001_001","B23025_004","B06011_001",
                                   "B06012_002","B02001_002","B25002_003",
                                   "B25013_006","B08013_001","B15012_009"), 
@@ -126,6 +130,7 @@ studentData <- st_read("studentData.geojson", crs = 'ESRI:102254')%>%
   mutate(Age = 2021 - builtYear) %>%
   mutate(TotalBath = nbrThreeQtrBaths + nbrFullBaths + nbrHalfBaths)
 
+# Create data table with variables
 studentData %>%
 st_make_valid(geometry)
 
@@ -174,6 +179,7 @@ Table 1, below summarizes key indicators by municipality. Each variable represen
 
 ```{r Project Data Table}
 
+# Produce a table with data price and demographic variable averages across municipalities
 Municipality.Summary <-
   st_drop_geometry(House_in_muni_boundary) %>%
   group_by(Municipality) %>%
@@ -192,9 +198,10 @@ kable(Municipality.Summary, digits = 2) %>%
   footnote(general_title = "\n",
            general = "Table 1. Housing prices grouped by municipalities")
 
-
+# Add municipal boundaries to data table 
 studentData <- st_join(studentData, BoulderMuni_Boundary, join = st_within)
 
+# Remove unimportant variables from the data table
 studentData <- 
 studentData %>%
   select(-c(OBJECTID, ZONECLASS, LASTUPDATE,LASTEDITOR, REG_PDF_URL, Shape_STArea__, 
@@ -236,12 +243,13 @@ For parks, we downloaded a polygon of park area in Boulder County, and created t
 GreenSpacePolygon <- st_read("County_Open_Space.geojson") %>%
                      st_transform('ESRI:102254')
 
+# Remove NA park groups
 Park <- GreenSpacePolygon[!is.na(GreenSpacePolygon$PARK_GROUP),] %>%
         st_centroid()
   
 st_c <- st_coordinates
 
-
+# Add three nearest neighbor variables for parks
 studentData <-
   studentData %>% 
   mutate(park_nn1 = nn_function(st_c(studentData), st_c(Park), 1),
@@ -249,6 +257,7 @@ studentData <-
          park_nn3 = nn_function(st_c(studentData), st_c(Park), 3),
          park_dist = st_distance(studentData,Park))
 
+# Create a variable for the parks within a 500m buffer of any house
 Park_in_buffer <-
   st_join(Park,st_buffer(studentData,500),join = st_within)
 
@@ -257,6 +266,7 @@ PKCount <-
   count(MUSA_ID)%>%
   st_drop_geometry()
 
+# Add the buffer park count variable
 studentData <-
   left_join(studentData, PKCount, by = "MUSA_ID" )
 
@@ -264,6 +274,7 @@ studentData <-
   studentData %>%
   rename(PKCount500m = n)
 
+# Remove NA values
 studentData$PKCount500m[is.na(studentData$PKCount500m)] <- 0
 
 # Load Landmarks data
@@ -297,6 +308,7 @@ studentData <-
 
 studentData$TrailHead1000m[is.na(studentData$TrailHead1000m)] <- 0
 
+# This time calculate up to 5 nearest neighbors
 studentData <-
   studentData %>% 
   mutate(
@@ -328,17 +340,20 @@ Playground <-
   drop_na(PROPID)%>%
   select(geometry)
 
+# Creating a variable to represent the number of playgrounds within a 500m buffer of a home
 Playground.sf <-
   st_join(Playground,st_buffer(studentData,500),join = st_within)
 
+# Call this PGCount
 PGCount <-
   Playground.sf %>%
   count(MUSA_ID)%>%
   st_drop_geometry()
 
+# Join PGCount to the rest of the variables
 studentData <-
   left_join(studentData, PGCount, by = "MUSA_ID" )
-  
+
 studentData <-
   studentData %>%
   rename(pgcount500m = n)
@@ -352,14 +367,17 @@ Schools <-
   st_transform('ESRI:102254')%>%
   filter(COUNTY == "BOULDER")
   
+# Differentiate private schools for further analysis
 Private_School <-
   filter(Schools, startsWith(Type_, "Non-"))
 
+# Create a variable for distance to the nearest school
 studentData <-
   studentData %>% 
   mutate(
   school_nn1 = nn_function(st_c(studentData), st_c(Schools), 1))
 
+# For private schools, create variables for mean distance to the nearest 1 through 5 neighbors
 studentData <-
   studentData %>%
   mutate(
@@ -374,15 +392,14 @@ Floodplain <-
  st_transform('ESRI:102254')%>%
   st_union()
 
+# Add a variable to represent distance to the floodplain
 studentData <-
   studentData %>%
   mutate(flood_dist = st_distance(studentData, Floodplain, by_element=TRUE))
 
 
-# This selects all numeric variables as preparation for the
-# correlation analysis that follows.
-#(also delete the outliar)
-
+# This selects all numeric variables as preparation for the correlation analysis that follows.
+# It also deletes an outlier.
 cleanData <- 
   select_if(st_drop_geometry(studentData), is.numeric) %>%
   select(!c(year, ExtWallSec, IntWall, Roof_Cover, Stories, UnitCount))%>%
@@ -394,6 +411,7 @@ studentData.GEOID <-
 cleanData <-
   left_join(cleanData, studentData.GEOID)
 
+# Remove NA values
 cleanData$Ac[(cleanData$Ac)== NA] <- 0
 cleanData$Heating[(cleanData$Heating) == NA] <- 0
 ```
@@ -452,8 +470,7 @@ The model creates coefficients for several of the previously mentioned variables
 To test our model, we use a 75/25 split of the data. This means that 75% of our model will be trained on, and 25% of the model will be tested on. Since we already know the price of the points we are testing, we get a sense of the accuracy of our model before we make our predictions for the challenge set.
 
 ```{r Train & Test, results = FALSE, warning=FALSE}
-# The test data only includes rows comprising the test set.
-# Remove Outliars
+# Remove Outliers
 
 test.Data <- filter(cleanData, toPredict == 1)
 
@@ -530,7 +547,7 @@ ggcorrplot(
 Below is a in-depth look of Fig. 4, presenting correlations between price and four selected variables. There is a noticeably strong positive correlation between price and total square footage. Negative correlations are also clear between price and the distances to landmarks and private schools.
 
 ```{r Scatter Plots, echo=FALSE, message=FALSE}
-#Scatter plots between price and variables
+# Scatter plots between price and variables
 cleanData %>%
   select(price,"Playground Count in 500m" = pgcount500m, 
          "Total Squrefootage" = TotalFinishedSF,"Distance to Landmark (m)" = landmark_dist,
@@ -596,12 +613,13 @@ reg1 <- lm(price ~ ., data = train.Data.1 %>%
                  privat_dist))
 
 
-
+# Create a stargazer table to represent variation of selected variables
 stargazer(reg1, type = "html", title = "Table 3. Variation of selected variable and error control of the regression model",out="table1.html",dep.var.labels = "Housing Price")
 
 ```
 
 ```{r}
+# Display a table with information as to the model's prediction of housing prices based on the 75-point training set
 reg1.tidy <-
   tidy(reg1,
        "Section Number" = section_num)
@@ -680,8 +698,7 @@ After a set of regression coefficients have been produced and tested by 100-fold
 The resulting Mean Absolute Percentage Error indicates that the model created a decent output. Predictions were, on average, within 30% of the value of the price. This bodes well for the potential of the model to predict mostly reasonable prices for the challenge set. 
 
 ```{r MAE and table, echo=FALSE}
-#Run model on unpredicted dataset
-
+# Run model on the 25-point test set
 train.Data.2 <-
   train.Data.2 %>%
   mutate(SalePrice.Predict = predict(reg1, train.Data.2))
@@ -692,7 +709,7 @@ train.Data.2 <-
          SalePrice.AbsError = abs(SalePrice.Predict - price),
         SalePrice.APE = (abs(SalePrice.Predict - price)) / SalePrice.Predict)
 
-#Table of mean absolute error and MAPE
+# Table of mean absolute error and MAPE
 Prediction.Variation <- "Trial 1" 
 MeanAb <- mean(train.Data.2$SalePrice.AbsError,na.rm = T)
 MeanAPE <- mean(train.Data.2$SalePrice.APE, na.rm = T)
