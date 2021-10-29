@@ -19,7 +19,7 @@ Zillow's housing market predictions are an integral part of its business model, 
 
 This project outlines and analyzes the process by which we created our model in three broad stages: data gathering, regression modeling, and finally, prediction and validation. Our process involves splitting our total dataset into a training set consisting of 75% of the points, and a testing set consisting of the other 25%. These data are used to create our model, which predicts the 100 observations of the challenge set.
 
-_We found_
+We found that our model's predictive capabilities were bolstered by the addition of geographic features. While many variables from the given dataset were also central to the model’s predictions, variables such as distance to the nearest park and the mean distance to the five closest trail heads were very important to the model. 
 
 ```{r The Setup, message=FALSE, warning=FALSE}
 # load 17 libraries for use later
@@ -83,7 +83,7 @@ palette5 <- c("#25CB10", "#5AB60C", "#8FA108",   "#C48C04", "#FA7800")
 The data gathering process begins by accessing tract-level geography, population, and demographic data from the 2019 American Community Survey (ACS). Variables of interest are isolated and wrangled to create features required for the analysis.
 
 ```{r ACS Data, results = FALSE, message=FALSE,warning=FALSE, cache = FALSE}
-# Create a lit of all 2019 acs 5-year variables
+# Create a list of all 2019 acs 5-year variables
 varlist_2019 <- load_variables(2019, "acs5", cache = TRUE)
 
 # Census API key
@@ -522,7 +522,7 @@ Fig. 2 shows a graph of the relationship between Housing Price and the distance 
 ggplot(data = train.Data, aes(head_nn5, price)) +
        geom_point(size = .5) + 
        geom_smooth(method = "lm")+
-  labs(title = "Relationship between Housing Price and the Average Distance to the Nearest Five Trail Heads", x = "Distance (m)", y = "Sale Price ($)",caption = "Fig. 2")+
+  labs(title = "Relationship between Housing Price and the Average Distance\nto the Nearest Five Trail Heads", x = "Distance (m)", y = "Sale Price ($)",caption = "Fig. 2")+
   plotTheme()
 ```
 
@@ -549,9 +549,9 @@ Below is a in-depth look of Fig. 4, presenting correlations between price and fo
 ```{r Scatter Plots, echo=FALSE, message=FALSE}
 # Scatter plots between price and variables
 cleanData %>%
-  select(price,"Playground Count in 500m" = pgcount500m, 
-         "Total Squrefootage" = TotalFinishedSF,"Distance to Landmark (m)" = landmark_dist,
-         "Distance to the nearest private school" = privat_dist)%>%
+  select(price,"Playground\nCount in 500m" = pgcount500m, 
+         "Total Sq ft" = TotalFinishedSF,"Distance to\nLandmark (m)" = landmark_dist,
+         "Distance to the\nnearest private\nschool" = privat_dist)%>%
 gather(Variable, Value, -price) %>% 
   ggplot(aes(Value, price)) +
   geom_point(size = .5) + geom_smooth(method = "lm", se=F, colour = "#FA7800") +
@@ -572,7 +572,6 @@ testSignificance <- lm(price ~ ., data = train.Data %>%
 
 # This gives us our r-squared value, which measures fit to the training data.
 summary(testSignificance)
-
 ```
 
 
@@ -703,6 +702,7 @@ train.Data.2 <-
   train.Data.2 %>%
   mutate(SalePrice.Predict = predict(reg1, train.Data.2))
          
+# Calculate ale price error, absolute error, and APE
 train.Data.2 <-
   train.Data.2 %>%
         mutate(SalePrice.Error = SalePrice.Predict - price,
@@ -728,15 +728,16 @@ kable(MeanAb.table, digit = 2,
 
 ### Plot Predictions
 
-Fig. 6 compares predicted price to actual price. The logarithmic relationship shows that for lower prices, our model slightly under-predicts observed prices. Mid-level prices tend to be over-predicted, but the highest _edit_
+Fig. 6 compares predicted price to actual price. The logarithmic relationship shows that for lower prices, our model slightly under-predicts observed prices. Mid-level prices tend to be over-predicted, but the highest-priced homes are where our model struggles the most. Prices of homes that are especially higher than the mean price are significantly underestimated. 
 
 Fig. 7, showing absolute errors between observed and predicted housing price across Boulder County, demonstrates that our model generally has consistently low absolute error.
 
 ```{r Plot Predictions, message=FALSE, warning = FALSE}
-#Plot of predicted prices as a function of observed price
+# Plot of predicted prices as a function of observed price
+# Also included: theoretical line at which predictions = observations
 ggplot(data = train.Data.2, aes(price,SalePrice.Predict)) +
   geom_point(size = .85,colour = "orange") + 
-  geom_smooth(method = "lm",colour = "red",size = 1.2)+
+  geom_abline(slope=1,colour = "red",size = 1.2)+
   labs(x = "Obeserved Prices",y = "Predicted Prices", title = "Predicted Prices as a Function of Observed Prices",
        subtitle = "Boulder County, CO (all in $)", 
        caption = "Fig. 6")+
@@ -770,16 +771,22 @@ ggplot()+
 There is a slight trend relating Sale Price Error to Spatial Lag Errors, suggesting some spatial lag effect. The points with the greatest error are generally a little bit more likely to have nearby points with high error. 
 
 ```{r Lag Price Errors, fig.width=8,fig.height=8}
-#Lag Price Errors
+# Lag Price Errors
 
 coords.test <-  st_coordinates(train.Data.2) 
+
+# Get list of neighbors
 neighborList.test <- knn2nb(knearneigh(coords.test, 5))
+
+# Supplement neighbors list with spatial weights
 spatialWeights.test <- nb2listw(neighborList.test, style="W")
 
+# Get lag price error
 train.Data.2.lag <-
 train.Data.2 %>% 
   mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error))
 
+# Plot lag price errors against predicted price error
 ggplot(data = train.Data.2.lag, aes(lagPriceError, SalePrice.Error)) +
   geom_point(size = .85,colour = "orange") + 
   geom_smooth(method = "lm",colour = "red",size = 1.2)+
@@ -803,7 +810,7 @@ A I approaching -1 indicates greater dispersal, while an I approaching 1 indicat
 Because the spatial distribution of the randomly permutated I is random, its Moran's I is very close to zero. The observed Moran's I is higher than all 999 of the permutated Is, confirming the existence of a spatial autocorrelation. 
 
 ```{r Morans I, echo = FALSE, warning = FALSE}
-#Moran's I
+#Moran's I: test and plot
 
 moranTest <- moran.mc(train.Data.2$SalePrice.Error, 
                       spatialWeights.test, nsim = 999)
@@ -823,17 +830,16 @@ ggplot(as.data.frame(moranTest$res[c(1:999)]), aes(moranTest$res[c(1:999)])) +
 
 ### Predicted Results by Municipality
 
-The map below shows predicted values for the entire dataset overlaid onto a map of municipalities. According to the model, most of the municipalities are predicted to have houses at a range of prices. The City of Boulder is interestingly more clustered, with higher priced houses in the north and comparatively lower priced houses in the south. 
+The map below shows predicted values for the entire dataset overlaid onto a map of municipalities. According to the model, most of the municipalities are predicted to have houses at a range of prices. The City of Boulder is more segregated by home price, with higher priced houses in the north and comparatively lower priced houses in the south. 
 
-_edit_
-
-```{r Prediction on Challenge Set, echo=FALSE, warning=FALSE, message=FALSE}
-#Map of predicted value on both == 1 and == 0
+```{r Predictions by municipality, echo=FALSE, warning=FALSE, message=FALSE}
+# Map of predicted value on both == 1 and == 0
 test.Data <-
   test.Data %>%
   mutate(SalePrice.Predict = predict(reg1, test.Data))%>%
   st_as_sf()
 
+# Clean training data for merge with test data
 train.Data.2 <-
   mutate(train.Data.2, Regression = "Baseline Regression")
 
@@ -841,9 +847,11 @@ merge.predicted <-
   train.Data.2 %>%
   select(-SalePrice.Error,-SalePrice.AbsError, -SalePrice.APE, -Regression)
 
+# Merge predictions with test data
 merge.predicted <-
   rbind(merge.predicted,test.Data)
 
+#  Plot predictions by municipality
 ggplot()+
   geom_sf(data = BoulderCounty_Bundary, fill = "grey50") +
   geom_sf(data = tracts19, colour = "black")+
@@ -866,6 +874,7 @@ tracts_with_error <-
   st_join(tracts19 ,train.Data.2)%>%
   select(price,GEOID.x,SalePrice.APE,SalePrice.AbsError)
 
+# Summarize mean absolute error, MAPE, and mean price
 tracts_with_error <-
   tracts_with_error %>%
   group_by(GEOID.x)%>%
@@ -874,6 +883,7 @@ tracts_with_error <-
             "Mean.price" = mean(price), na.rm = T)%>%
   mutate(MAPE.Pct = MAPE*100)
 
+# Map tract error
 ggplot()+
   geom_sf(data = BoulderCounty_Bundary, fill = "grey70") +
   geom_sf(data = tracts_with_error, aes(fill = MAPE.Pct),colour = "black")+
@@ -882,10 +892,11 @@ ggplot()+
   labs(title = "Mean Absolute Error Aggregated Based on Census Tracts", caption = "Fig. 11", subtitle = "Boulder County, Colorado")+
   mapTheme()
 
+# Plot absolute Percentage Error as a function of Mean Housing Prices by Municipalities
 ggplot(data = tracts_with_error, aes(Mean.price, MAPE.Pct)) +
   geom_point(size = 1.5,colour = "orange") + 
   labs(x = "Mean Housing Prices",y = "Mean Absolute Percentage Errors", 
-       title = "Absolute Percentage Error as a function of Mean Housing Prices by Municipalities",
+       title = "Absolute Percentage Error as a function of Mean\nHousing Prices by Municipalities",
        subtitle = "Boulder County, Colorado", caption = "Fig. 12")+
   theme(plot.title = element_text(size = 20),
         plot.subtitle = element_text(size = 15),
@@ -909,6 +920,8 @@ left_join(
 If we consider census tracts as neighborhoods, we can account for neighborhood effects in our regression model. Using this logic, we add census tract GEOID as one of our indicators along with the previously included variables. 
 
 ```{r neighborhood effects, message=FALSE}
+
+# Create a linear model for neighborhood analysis
 reg.nhood <- lm(price ~ ., data = as.data.frame(train.Data.1) %>% 
                                  select(price, GEOID,
                  section_num,
@@ -935,6 +948,7 @@ reg.nhood <- lm(price ~ ., data = as.data.frame(train.Data.1) %>%
                  flood_dist,
                  privat_dist))
 
+# test fro neighborhood effects
 boulder.test.nhood <-
   train.Data.2 %>%
   mutate(Regression = "Neighborhood Effects",
@@ -950,13 +964,15 @@ Table 7 compares the absolute error between the baseline regression and a versio
 
 Fig. 13 maps the relationship between predicted and actual prices for the house prices in the test set. The orange line represents a function in which predicted values perfectly represent the observed values. The green lines represent the regression of the two models. The similarities between the baseline version of the plot and the plot considering neighborhood effects show that the neighborhood effects do not prediction accuracy much. 
 
-```{r, results=FALSE}
+```{r}
+# Combine regular regression dataframe with the version of the regression that considers neighborhood effects
 bothRegressions <- 
   rbind(select(train.Data.2, starts_with("SalePrice"), Regression, GEOID,price) %>%
  mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error)),
 select(boulder.test.nhood, starts_with("SalePrice"), Regression, GEOID,price) %>%
   mutate(lagPriceError = lag.listw(spatialWeights.test, SalePrice.Error)))
 
+# Table output of absolute error and sale price
 st_drop_geometry(bothRegressions) %>%
   gather(Variable, Value, -Regression, -GEOID) %>%
   filter(Variable == "SalePrice.AbsError" | Variable == "SalePrice.APE") %>%
@@ -969,6 +985,7 @@ st_drop_geometry(bothRegressions) %>%
 
 
 ```{r}
+# Plot baseline regression and sale price
 bothRegressions %>%
   select(SalePrice.Predict, price, Regression) %>%
     ggplot(aes(price, SalePrice.Predict)) +
@@ -986,12 +1003,14 @@ bothRegressions %>%
 The maps of Fig. 14 present geographic representations of demographics in Boulder County. These maps provide a framework for understanding how demographic variables affect sales price, or potential clustering. Every tract in Boulder County is majority white based on 2019 ACS data. For our map of median income across Boulder County census tracts, tracts are designated as "high income" (greater than the county median of $40450), or "low income" (lower than the county median). 
 
 ```{r}
+# Calculate percent white and median income for census tracts
 tracts19.2 <- 
   tracts19%>%
   mutate(percentWhite = white_pop / tot_pop,
          raceContext = ifelse(percentWhite > .5, "Majority White", "Majority Non-White"),
          incomeContext = ifelse(med_inc > 40450, "High Income", "Low Income"))
 
+# Create two tract-level, boulder county maps, one for race and one for income 
 grid.arrange(ncol = 2,
   ggplot() + geom_sf(data = na.omit(tracts19.2), aes(fill = raceContext)) +
     scale_fill_manual(values = c("#25CB10", "#FA7800"), name="Race Context") +
@@ -1006,6 +1025,7 @@ grid.arrange(ncol = 2,
 We examine income as a potential neighborhood effect. Table 8 shows a lower MAPE in the low income area than in the high income area. This indicates that at least in low income areas, neighborhood effects do account for the clustering of housing prices. 
 
 ```{r}
+# Calculate and compare MAPE for low income and high income census tracts
 st_join(bothRegressions, tracts19.2) %>% 
   group_by(Regression, incomeContext) %>%
   summarize(mean.MAPE = scales::percent(mean(SalePrice.APE, na.rm = T))) %>%
@@ -1014,16 +1034,12 @@ st_join(bothRegressions, tracts19.2) %>%
   kable(caption = "Table 8. Test set MAPE by neighborhood racial context") %>%
   kable_styling()
 ```
-# Conclusion
+# Additional Discussion
 
-The model we created was certainly improved by the addition of geographic features. While many variables from the given dataset were also central to the model’s predictions, variables such as distance to the nearest park and the mean distance to the five closest trailheads performed well. 
-_more on which variables were important_
-
-Throughout the cyclical iterations of the project’s development our team faced difficult decisions related to acceptance and rejection of given variables.  Ultimately, a mean-absolute-percent-error (MAPE) of around 30% allows for a modest level of confidence in our model.  Given more research and an enhanced qualitative context we are inclined to think that the model has room for improvement.  Geographically, Boulder City had the highest concentration of errors. This error may have been caused by higher density development or the unique real estate environment created by the presence of a large University in the area. The rest of the municipalities had generally more accurate predictions. Overall, the model we created was certainly improved by the addition of geographic features.
-
-Variables used as predictors
+The model we created was certainly improved by the addition of geographic features. While many variables from the given dataset were also central to the model’s predictions, variables such as distance to the nearest park and the mean distance to the five closest trail heads performed well too. For more information on individual variable performance, see the tables below.
 
 ```{r Summary Statistics of Predictors used in the model,echo=FALSE, results='asis'}
+# Select 8 home variables for InterCh.va
 InterCh.va <-
 studentData %>%
    select("Section.Num" = section_num,
@@ -1036,6 +1052,7 @@ studentData %>%
           "Rooms.No.bath" = nbrRoomsNobath)%>%
    st_drop_geometry()
 
+# Select 4 ACS variables for SpacialStruct.va
  SpacialStruct.va <-
    studentData %>%
    select("Med.Income" = med_inc,
@@ -1044,6 +1061,7 @@ studentData %>%
           "Pvty.Pop" = pvty_pop) %>%
    st_drop_geometry()
 
+# Select 6 additional geographic variables for Amen.va
  Amen.va <-
    studentData %>%
    select(landmark_dist,
@@ -1054,6 +1072,7 @@ studentData %>%
           flood_dist)%>%
    st_drop_geometry()
  
+# Make Amen.va variables numeric for analysis
 Private.Dist <-
  as.numeric(Amen.va$privat_dist)
 
@@ -1063,6 +1082,7 @@ LandMark.Dist <-
 Flood.Dist <-
   as.numeric(Amen.va$flood_dist)
 
+# Bind and rename Amen.va variables
 Amen.va <-
   cbind(Amen.va, Flood.Dist,LandMark.Dist,Private.Dist)%>%
   select(LandMark.Dist,
@@ -1072,7 +1092,7 @@ Amen.va <-
           "PGCount.500m" = pgcount500m,
           Flood.Dist)
    
-
+# Display InterCh.va variables via stargazer
  stargazer(InterCh.va, type = "html", title = "Statistic Summary: Internal Characteristic Variables",
            digits = 0,
            notes = c("Section.Num: Building section number by uses",
@@ -1084,6 +1104,7 @@ Amen.va <-
            "Total.Bath: Number of Bathrooms",
            "Rooms.No.Bath: Number of Rooms that are not bathrooms"))
 
+# Display Amen.va variables via stargazer
  stargazer(Amen.va, type = "html", title = "Statistic Summary: Amenities",
            digits = 0,
            notes = c("Unit: Meters Source: Boulder County Open Data Portal",
@@ -1094,6 +1115,7 @@ Amen.va <-
           "PGCount.500: Playground count in 500m radius of a sold house",
           "Flood.Dist: Distance to the nearest Floodplain"))
 
+# Display SpacialStruct.va variables via stargazer
  stargazer(SpacialStruct.va, type = "html", title = "Statistic Summary: Spacial Structure",
            digits = 0,
            notes = c("Source: One-year American Community Survey",
@@ -1110,3 +1132,9 @@ Amen.va <-
           "representing Louisvelle, Ward, Jamestown, Nederland, Boulder, Erie,",
           "Lafayette, and Longmont, respectively"))
 ```
+
+# Conclusion
+
+Throughout the cyclical iterations of the project’s development our team faced difficult decisions related to acceptance and rejection of given variables.  Ultimately, a mean-absolute-percent-error (MAPE) of around 30% allows for a modest level of confidence in our model. Geographically, Boulder City had the highest concentration of errors. This error may have been caused by higher density development or the unique real estate environment created by the presence of a large University in the area. The rest of the municipalities had generally more accurate predictions. Overall, the model we created was certainly improved by the addition of geographic features. Given more research and an enhanced qualitative context we are inclined to think that the model has room for improvement, but our team would still recommend our own model to Zillow as a solid starting point. 
+
+
